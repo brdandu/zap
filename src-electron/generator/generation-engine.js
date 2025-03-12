@@ -810,6 +810,11 @@ async function generateAllTemplates(
     await Promise.all(templates)
   }
 
+  if (genResult.hasErrors) {
+    for (const [key, value] of Object.entries(genResult.errors)) {
+      console.error(`${key}: ${value}`)
+    }
+  }
   genResult.partial = false
   return genResult
 }
@@ -852,6 +857,9 @@ async function generateSingleTemplate(
       options
     )
     for (let result of resultArray) {
+      if (!result.content) {
+        console.error(`No content generated for ${result.key}`)
+      }
       genResult.content[result.key] = result.content
       genResult.stats[result.key] = result.stats
     }

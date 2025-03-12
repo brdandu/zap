@@ -191,7 +191,36 @@ async function produceContent(
   if (options.initialContext != null) {
     Object.assign(context, options.initialContext)
   }
-  let content = await template(context)
+  let content
+  // Render the template but if it does not render within 30s, then throw an
+  // error instead of just hanging forever.
+  try {
+    // Attempt to render the template
+    content = await Promise.race([
+      template(context),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Template rendering timed out')),
+          30000
+        )
+      )
+    ])
+  } catch (error) {
+    // Log the error and throw it
+    notification.setNotification(
+      db,
+      'ERROR',
+      `Error during template rendering of ${singleTemplatePkg.path}: ` +
+        error.message,
+      sessionId,
+      1
+    )
+    console.error(
+      `Error during template rendering of ${singleTemplatePkg.path}: `,
+      error
+    )
+    throw error
+  }
   return [
     {
       key:
@@ -283,6 +312,14 @@ function helperWrapper(wrappedHelper) {
       }
     }
     try {
+      // Check each argument
+      for (const arg of args) {
+        if (arg instanceof Promise) {
+          throw new Error(
+            'Promises are not allowed as arguments in Handlebars helpers.'
+          )
+        }
+      }
       return wrappedHelper.call(this, ...args)
     } catch (err) {
       let thrownObject
