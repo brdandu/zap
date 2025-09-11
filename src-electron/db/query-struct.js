@@ -48,10 +48,17 @@ async function selectAllStructs(db, packageId) {
     DATA_TYPE
   ON
     STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+  LEFT JOIN
+    DATA_TYPE_CLUSTER
+  ON
+    DATA_TYPE_CLUSTER.DATA_TYPE_REF = DATA_TYPE.DATA_TYPE_ID
+  LEFT JOIN
+    CLUSTER
+  ON
+    CLUSTER.CLUSTER_ID = DATA_TYPE_CLUSTER.CLUSTER_REF
   WHERE
-    PACKAGE_REF = ?
-  ORDER BY
-    NAME`,
+    DATA_TYPE.PACKAGE_REF = ?
+  ORDER BY DATA_TYPE.NAME, CLUSTER.NAME`,
     [packageId]
   )
   return rows.map(dbMapping.map.struct)
