@@ -217,7 +217,11 @@ jobs:
       - name: Generate all (${{ matrix.matter-branch }})
         run: |
           cd chip_repo
-          ./scripts/checkout_submodules.py --allow-changing-global-git-config --shallow --platform linux
+          if [ "${{ matrix.matter-branch }}" = "v1.0-branch" ]; then
+            ./scripts/checkout_submodules.py --shallow --platform linux
+          else
+            ./scripts/checkout_submodules.py --allow-changing-global-git-config --shallow --platform linux
+          fi
           ZAP_INSTALL_PATH=$(pwd)/../zap-release scripts/run_in_build_env.sh "scripts/tools/zap_regen_all.py --type global"
           ZAP_INSTALL_PATH=$(pwd)/../zap-release scripts/run_in_build_env.sh "scripts/tools/zap_regen_all.py --type specific"
 
