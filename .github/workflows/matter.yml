@@ -189,6 +189,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
+        matter-branch: [master, v1.0-branch]
 
     # CHIP container required because clang-format version needs to match
     container:
@@ -204,16 +205,16 @@ jobs:
           mkdir zap-release && cd zap-release && unzip ../zap-linux-x64.zip
 
       # Checkout without actions/checkout@v4 since that one uses a repository specific token
-      - name: Checkout Matter SDK
+      - name: Checkout Matter SDK (${{ matrix.matter-branch }})
         run: |
-          git clone --depth 1 https://github.com/project-chip/connectedhomeip.git chip_repo
+          git clone --depth 1 --branch ${{ matrix.matter-branch }} https://github.com/project-chip/connectedhomeip.git chip_repo
 
       - name: Ensure matter embedded zap is not available
         run: |
           rm -f /usr/bin/zap-cli
           rm -rf /opt/zap-*
 
-      - name: Generate all
+      - name: Generate all (${{ matrix.matter-branch }})
         run: |
           cd chip_repo
           ./scripts/checkout_submodules.py --allow-changing-global-git-config --shallow --platform linux
@@ -223,7 +224,7 @@ jobs:
       - name: Ensure git works in the chip repository checkout
         run: git config --global --add safe.directory `pwd`/chip_repo
 
-      - name: Check for uncommited changes
+      - name: Check for uncommited changes (${{ matrix.matter-branch }})
         run: |
           cd chip_repo
           git add .
