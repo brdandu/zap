@@ -189,7 +189,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
-        matter-branch: [master, v1.3-branch]
+        matter-branch: [master, v1.4.2-branch]
 
     # CHIP container required because clang-format version needs to match
     container:
