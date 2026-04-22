@@ -178,6 +178,16 @@ async function access_aggregate(options) {
  * For each element, context contains role, operation, accessModifier.
  * Additionally it creates booleans hasRole, hasOperation and hasAccessModifier
  * and hasAtLeastOneAccessElement and hasAllAccessElements
+ * From `exports.map.access` in `src-electron/db/db-mapping.js`:
+ * - operation
+ * - role
+ * - accessModifier
+ * Helper-added:
+ * - hasRole
+ * - hasOperation
+ * - hasAccessModifier
+ * - hasAllAccessElements
+ * - hasAtLeastOneAccessElement
  * @param {*} options
  */
 async function access(options) {
@@ -201,6 +211,16 @@ async function access(options) {
 
 /**
  * Get the access list information.
+ * From `exports.map.access` in `src-electron/db/db-mapping.js`:
+ * - operation
+ * - role
+ * - accessModifier
+ * Helper-added (same as `access`):
+ * - hasRole
+ * - hasOperation
+ * - hasAccessModifier
+ * - hasAllAccessElements
+ * - hasAtLeastOneAccessElement
  *
  * @param {*} options
  * @returns access list

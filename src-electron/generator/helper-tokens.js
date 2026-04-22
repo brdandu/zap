@@ -278,6 +278,64 @@ async function token_attribute_util(context, options) {
  * non-singleton attributes are returned per endpoint. However if used within
  * an endpoint block helper it returns token_attributes for a given endpoint
  * type.
+ * From `exports.map.endpointTypeAttributeExtended` in `src-electron/db/db-mapping.js`:
+ * - arrayType
+ * - attributeRef
+ * - bounded
+ * - clusterDefine
+ * - clusterMfgCode
+ * - clusterName
+ * - clusterRef
+ * - clusterSide
+ * - code
+ * - defaultValue
+ * - define
+ * - endpointId
+ * - endpointTypeRef
+ * - entryType
+ * - hexCode
+ * - id
+ * - included
+ * - includedReportable
+ * - isArray
+ * - isBound
+ * - isClusterEnabled
+ * - isGlobalAttribute
+ * - isIncluded
+ * - isManufacturingSpecific
+ * - isNullable
+ * - isOptionalAttribute
+ * - isReportableAttribute
+ * - isSceneRequired
+ * - isSingleton
+ * - isWritable
+ * - isWritableAttribute
+ * - isReadable
+ * - isReadableAttribute
+ * - manufacturerCode
+ * - max
+ * - maxInterval
+ * - maxLength
+ * - mfgCode
+ * - min
+ * - minInterval
+ * - minLength
+ * - mustUseTimedWrite
+ * - name
+ * - reportableChange
+ * - side
+ * - singleton
+ * - smallestEndpointIdentifier
+ * - storage
+ * - storageOption
+ * - tokenId
+ * - type
+ * - apiMaturity
+ * - isChangeOmitted
+ * - persistence
+ * - reportMinInterval
+ * - reportMaxInterval
+ * - conformance
  */
 async function token_attributes(endpointTypeRef, options) {
   if (typeof endpointTypeRef != 'object') {
@@ -310,6 +368,32 @@ async function token_attributes(endpointTypeRef, options) {
  * @param {*} options
  * @returns Token associated clusters for a particular endpoint type or all
  * token associated clusters across endpoints.
+ * Per-endpoint mode (`selectTokenAttributeClustersForEndpoint`), from
+ * `exports.map.cluster` in `src-electron/db/db-mapping.js`:
+ * - id
+ * - packageRef
+ * - code
+ * - manufacturerCode
+ * - label
+ * - name
+ * - caption
+ * - description
+ * - define
+ * - domainName
+ * - isSingleton
+ * - revision
+ * - isManufacturingSpecific
+ * - apiMaturity
+ * Global mode (`selectAllUserClustersWithTokenAttributes`), from
+ * `exports.map.endpointTypeClusterExtended` in `src-electron/db/db-mapping.js`:
+ * - endpointTypeClusterId
+ * - endpointTypeRef
+ * - clusterRef
+ * - side
+ * - enabled
+ * - name
+ * - code
+ * - tokenAttributesCount
  */
 async function token_attribute_clusters(endpointTypeRef, options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
