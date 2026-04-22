@@ -574,6 +574,8 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="otherwiseConform"/>
         <xs:element ref="deprecateConform"/>
         <xs:element ref="describedConform"/>
+        <xs:element ref="provisionalConform"/>
+        <xs:element ref="disallowConform"/>
       </xs:choice>
       <xs:attribute name="cli"/>
       <xs:attribute name="cliFunctionName" type="xs:string"/>
@@ -606,6 +608,8 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="otherwiseConform"/>
         <xs:element ref="deprecateConform"/>
         <xs:element ref="describedConform"/>
+        <xs:element ref="provisionalConform"/>
+        <xs:element ref="disallowConform"/>
       </xs:choice>
       <xs:attribute name="code" type="zclCode" use="optional"/>
       <xs:attribute name="default" use="optional"/>
