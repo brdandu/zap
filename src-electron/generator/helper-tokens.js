@@ -279,6 +279,7 @@ async function token_attribute_util(context, options) {
  * an endpoint block helper it returns token_attributes for a given endpoint
  * type.
  * From `exports.map.endpointTypeAttributeExtended` in `src-electron/db/db-mapping.js`:
+ * - apiMaturity
  * - arrayType
  * - attributeRef
  * - bounded
@@ -288,6 +289,7 @@ async function token_attribute_util(context, options) {
  * - clusterRef
  * - clusterSide
  * - code
+ * - conformance
  * - defaultValue
  * - define
  * - endpointId
@@ -299,19 +301,20 @@ async function token_attribute_util(context, options) {
  * - includedReportable
  * - isArray
  * - isBound
+ * - isChangeOmitted
  * - isClusterEnabled
  * - isGlobalAttribute
  * - isIncluded
  * - isManufacturingSpecific
  * - isNullable
  * - isOptionalAttribute
+ * - isReadable
+ * - isReadableAttribute
  * - isReportableAttribute
  * - isSceneRequired
  * - isSingleton
  * - isWritable
  * - isWritableAttribute
- * - isReadable
- * - isReadableAttribute
  * - manufacturerCode
  * - max
  * - maxInterval
@@ -322,7 +325,10 @@ async function token_attribute_util(context, options) {
  * - minLength
  * - mustUseTimedWrite
  * - name
+ * - persistence
  * - reportableChange
+ * - reportMaxInterval
+ * - reportMinInterval
  * - side
  * - singleton
  * - smallestEndpointIdentifier
@@ -330,12 +336,6 @@ async function token_attribute_util(context, options) {
  * - storageOption
  * - tokenId
  * - type
- * - apiMaturity
- * - isChangeOmitted
- * - persistence
- * - reportMinInterval
- * - reportMaxInterval
- * - conformance
  */
 async function token_attributes(endpointTypeRef, options) {
   if (typeof endpointTypeRef != 'object') {
@@ -370,29 +370,29 @@ async function token_attributes(endpointTypeRef, options) {
  * token associated clusters across endpoints.
  * Per-endpoint mode (`selectTokenAttributeClustersForEndpoint`), from
  * `exports.map.cluster` in `src-electron/db/db-mapping.js`:
- * - id
- * - packageRef
- * - code
- * - manufacturerCode
- * - label
- * - name
- * - caption
- * - description
- * - define
- * - domainName
- * - isSingleton
- * - revision
- * - isManufacturingSpecific
  * - apiMaturity
+ * - caption
+ * - code
+ * - define
+ * - description
+ * - domainName
+ * - id
+ * - isManufacturingSpecific
+ * - isSingleton
+ * - label
+ * - manufacturerCode
+ * - name
+ * - packageRef
+ * - revision
  * Global mode (`selectAllUserClustersWithTokenAttributes`), from
  * `exports.map.endpointTypeClusterExtended` in `src-electron/db/db-mapping.js`:
+ * - clusterRef
+ * - code
+ * - enabled
  * - endpointTypeClusterId
  * - endpointTypeRef
- * - clusterRef
- * - side
- * - enabled
  * - name
- * - code
+ * - side
  * - tokenAttributesCount
  */
 async function token_attribute_clusters(endpointTypeRef, options) {

@@ -179,15 +179,15 @@ async function access_aggregate(options) {
  * Additionally it creates booleans hasRole, hasOperation and hasAccessModifier
  * and hasAtLeastOneAccessElement and hasAllAccessElements
  * From `exports.map.access` in `src-electron/db/db-mapping.js`:
+ * - accessModifier
  * - operation
  * - role
- * - accessModifier
  * Helper-added:
- * - hasRole
- * - hasOperation
  * - hasAccessModifier
  * - hasAllAccessElements
  * - hasAtLeastOneAccessElement
+ * - hasOperation
+ * - hasRole
  * @param {*} options
  */
 async function access(options) {
@@ -212,15 +212,15 @@ async function access(options) {
 /**
  * Get the access list information.
  * From `exports.map.access` in `src-electron/db/db-mapping.js`:
+ * - accessModifier
  * - operation
  * - role
- * - accessModifier
  * Helper-added (same as `access`):
- * - hasRole
- * - hasOperation
  * - hasAccessModifier
  * - hasAllAccessElements
  * - hasAtLeastOneAccessElement
+ * - hasOperation
+ * - hasRole
  *
  * @param {*} options
  * @returns access list

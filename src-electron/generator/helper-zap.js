@@ -73,10 +73,10 @@ function backslash() {
  * Block helper that iterates over the package options of a given category.
  * From `exports.map.options` in `src-electron/db/db-mapping.js`:
  * - id
- * - packageRef
  * - optionCategory
  * - optionCode
  * - optionLabel
+ * - packageRef
  *
  * @param {*} category
  * @param {*} options

@@ -43,17 +43,17 @@ const stringLongTypes = ['LONG_CHAR_STRING', 'LONG_OCTET_STRING']
 /**
  * Block helper iterating over all bitmaps.
  * From `exports.map.bitmap` in `src-electron/db/db-mapping.js`:
+ * - apiMaturity
+ * - bitmapClusterCount
  * - id
  * - label
  * - name
- * - type
- * - bitmapClusterCount
  * - size
- * - apiMaturity
+ * - type
  * Helper-added:
+ * - has_more_than_one_cluster
  * - has_no_clusters
  * - has_one_cluster
- * - has_more_than_one_cluster
  *
  * @param {*} options
  * @returns Promise of content.
@@ -90,13 +90,13 @@ async function zcl_bitmaps(options) {
 /**
  * Iterates over bitmap fields. Valid only inside zcl_bitmaps.
  * From `exports.map.bitmapField` in `src-electron/db/db-mapping.js`:
- * - name
- * - label
- * - mask
- * - type
+ * - apiMaturity
  * - bitmapRef
  * - caption
- * - apiMaturity
+ * - label
+ * - mask
+ * - name
+ * - type
  * @param {*} options
  */
 function zcl_bitmap_items(options) {
@@ -112,17 +112,17 @@ function zcl_bitmap_items(options) {
  * Within a context of a cluster, it iterates only over the
  * enums belonging to a cluster.
  * From `exports.map.enum` in `src-electron/db/db-mapping.js`:
+ * - apiMaturity
+ * - caption
+ * - enumClusterCount
  * - id
  * - label
  * - name
- * - caption
- * - enumClusterCount
  * - size
- * - apiMaturity
  * Helper-added:
+ * - has_more_than_one_cluster
  * - has_no_clusters
  * - has_one_cluster
- * - has_more_than_one_cluster
  *
  * @param {*} options
  * @returns Promise of content.
@@ -241,12 +241,12 @@ async function zcl_structs(options) {
 /**
  * Iterates over enum items. Valid only inside zcl_enums.
  * From `exports.map.enumItem` in `src-electron/db/db-mapping.js`:
- * - name
- * - label
- * - value
- * - enumRef
- * - caption
  * - apiMaturity
+ * - caption
+ * - enumRef
+ * - label
+ * - name
+ * - value
  * @param {*} options
  */
 async function zcl_enum_items(options) {
@@ -321,23 +321,23 @@ async function first_unused_enum_value(options) {
 /**
  * Block helper iterating over all struct items. Valid only inside zcl_structs.
  * From `exports.map.structItem` in `src-electron/db/db-mapping.js`:
- * - name
- * - label
- * - fieldIdentifier
- * - structRef
- * - type
- * - minLength
- * - maxLength
+ * - apiMaturity
+ * - dataTypeReference
  * - defaultValue
+ * - discriminatorName
+ * - fieldIdentifier
  * - isArray
  * - isEnum
- * - isWritable
+ * - isFabricSensitive
  * - isNullable
  * - isOptional
- * - isFabricSensitive
- * - dataTypeReference
- * - discriminatorName
- * - apiMaturity
+ * - isWritable
+ * - label
+ * - maxLength
+ * - minLength
+ * - name
+ * - structRef
+ * - type
  * When `checkForDoubleNestedArray` is true, the helper may also set:
  * - struct_item_contains_nested_array
  * @param {*} options
@@ -371,23 +371,23 @@ async function zcl_struct_items(options) {
 /**
  * Block helper iterating over all struct items given the struct name.
  * From `exports.map.structItem` in `src-electron/db/db-mapping.js`:
- * - name
- * - label
- * - fieldIdentifier
- * - structRef
- * - type
- * - minLength
- * - maxLength
+ * - apiMaturity
+ * - dataTypeReference
  * - defaultValue
+ * - discriminatorName
+ * - fieldIdentifier
  * - isArray
  * - isEnum
- * - isWritable
+ * - isFabricSensitive
  * - isNullable
  * - isOptional
- * - isFabricSensitive
- * - dataTypeReference
- * - discriminatorName
- * - apiMaturity
+ * - isWritable
+ * - label
+ * - maxLength
+ * - minLength
+ * - name
+ * - structRef
+ * - type
  *
  * @param name
  * @param options
@@ -408,23 +408,23 @@ async function zcl_struct_items_by_struct_name(name, options) {
  * must be either a global struct (in which case the cluster name is just
  * ignored), or a struct associated with the given cluster.
  * From `exports.map.structItem` in `src-electron/db/db-mapping.js`:
- * - name
- * - label
- * - fieldIdentifier
- * - structRef
- * - type
- * - minLength
- * - maxLength
+ * - apiMaturity
+ * - dataTypeReference
  * - defaultValue
+ * - discriminatorName
+ * - fieldIdentifier
  * - isArray
  * - isEnum
- * - isWritable
+ * - isFabricSensitive
  * - isNullable
  * - isOptional
- * - isFabricSensitive
- * - dataTypeReference
- * - discriminatorName
- * - apiMaturity
+ * - isWritable
+ * - label
+ * - maxLength
+ * - minLength
+ * - name
+ * - structRef
+ * - type
  *
  * @param name
  * @param clusterName
@@ -463,16 +463,16 @@ async function zcl_struct_items_by_struct_and_cluster_name(
 /**
  * Block helper iterating over all deviceTypes.
  * From `exports.map.deviceType` in `src-electron/db/db-mapping.js`:
- * - id
- * - revision
- * - code
- * - profileId
- * - domain
- * - label
- * - name
  * - caption
  * - class
+ * - code
+ * - domain
+ * - id
+ * - label
+ * - name
  * - packageRef
+ * - profileId
+ * - revision
  *
  * @param {*} options
  * @returns Promise of content.
@@ -491,10 +491,10 @@ async function zcl_device_types(options) {
 /**
  * Block helper for use inside zcl_device_types
  * From `exports.map.deviceTypeCluster` in `src-electron/db/db-mapping.js`:
- * - id
- * - deviceTypeRef
- * - clusterRef
  * - clusterName
+ * - clusterRef
+ * - deviceTypeRef
+ * - id
  * - includeClient
  * - includeServer
  * - lockClient
@@ -516,11 +516,11 @@ async function zcl_device_type_clusters(options) {
 /**
  * Block helper for use inside zcl_device_type_clusters
  * From `exports.map.deviceTypeCommand` in `src-electron/db/db-mapping.js`:
- * - deviceTypeClusterRef
- * - commandRef
- * - name
  * - code
+ * - commandRef
+ * - deviceTypeClusterRef
  * - manufacturerCode
+ * - name
  * - source
  *
  * @param {*} options
@@ -539,11 +539,11 @@ async function zcl_device_type_cluster_commands(options) {
 /**
  * Block helper for use inside zcl_device_type_clusters
  * From `exports.map.deviceTypeAttribute` in `src-electron/db/db-mapping.js`:
- * - deviceTypeClusterRef
  * - attributeRef
- * - name
  * - code
+ * - deviceTypeClusterRef
  * - manufacturerCode
+ * - name
  *
  * @param {*} options
  * @returns blocks for attributes
@@ -562,20 +562,20 @@ async function zcl_device_type_cluster_attributes(options) {
 /**
  * Block helper iterating over all clusters.
  * From `exports.map.cluster` in `src-electron/db/db-mapping.js`:
- * - id
- * - packageRef
- * - code
- * - manufacturerCode
- * - label
- * - name
- * - caption
- * - description
- * - define
- * - domainName
- * - isSingleton
- * - revision
- * - isManufacturingSpecific
  * - apiMaturity
+ * - caption
+ * - code
+ * - define
+ * - description
+ * - domainName
+ * - id
+ * - isManufacturingSpecific
+ * - isSingleton
+ * - label
+ * - manufacturerCode
+ * - name
+ * - packageRef
+ * - revision
  *
  * @param {*} options
  * @returns Promise of content.
@@ -595,42 +595,42 @@ async function zcl_clusters(options) {
  *   when used in a global context, it iterates over ALL commands in the database.
  *   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that cluster.
  * From `exports.map.command` in `src-electron/db/db-mapping.js`:
- * - id
- * - clusterRef
- * - packageRef
- * - code
- * - manufacturerCode
- * - label
- * - name
- * - commandName
- * - description
- * - source
- * - isOptional
- * - conformance
- * - mustUseTimedInvoke
- * - isFabricScoped
- * - clusterCode
- * - clusterName
- * - clusterDefineName
- * - argName
- * - argType
+ * - apiMaturity
+ * - argCountArg
  * - argDefaultValue
  * - argIsArray
- * - argPresentIf
- * - argCountArg
- * - commandArgCount
- * - requiredCommandArgCount
- * - hasArguments
- * - commandHasRequiredField
  * - argIsNullable
- * - responseRef
- * - responseName
+ * - argName
+ * - argPresentIf
+ * - argType
+ * - clusterCode
+ * - clusterDefineName
+ * - clusterName
+ * - clusterRef
+ * - code
+ * - commandArgCount
+ * - commandHasRequiredField
+ * - commandName
+ * - conformance
+ * - description
+ * - hasArguments
  * - hasSpecificResponse
- * - isIncoming
- * - isOutgoing
+ * - id
  * - isDefaultResponseEnabled
+ * - isFabricScoped
+ * - isIncoming
  * - isLargeMessage
- * - apiMaturity
+ * - isOptional
+ * - isOutgoing
+ * - label
+ * - manufacturerCode
+ * - mustUseTimedInvoke
+ * - name
+ * - packageRef
+ * - requiredCommandArgCount
+ * - responseName
+ * - responseRef
+ * - source
  *
  * @param {*} options
  * @returns Promise of content.
@@ -820,29 +820,29 @@ function zcl_commands_source_server(options) {
  *   when used in a global context, it iterates over ALL events in the database.
  *   when used inside a `zcl_cluster` block helper, it iterates only over the events for that cluster.
  * From `exports.map.event` in `src-electron/db/db-mapping.js`:
- * - id
- * - clusterRef
+ * - apiMaturity
  * - clusterCode
- * - packageRef
+ * - clusterRef
  * - code
+ * - conformance
+ * - description
+ * - id
+ * - isFabricSensitive
+ * - isOptional
  * - manufacturerCode
  * - name
- * - description
- * - side
- * - conformance
- * - isOptional
- * - isFabricSensitive
+ * - packageRef
  * - priority
- * - apiMaturity
+ * - side
  * The helper adds `items`, an array of `exports.map.eventField` objects:
- * - fieldIdentifier
- * - name
- * - type
+ * - apiMaturity
  * - defaultValue
+ * - fieldIdentifier
  * - isArray
  * - isNullable
  * - isOptional
- * - apiMaturity
+ * - name
+ * - type
  *
  * @param {*} options
  * @returns Promise of content.
@@ -877,17 +877,17 @@ async function zcl_events(options) {
  * Block helper iterating over all commands, including their arguments and clusters.
  * Starts from `exports.map.command` rows (see `zcl_commands` for the per-key list),
  * then aggregates and adds:
- * - commandArgs
  * - argsstring
  * - clientMacroName
+ * - commandArgs
  * - isGlobal
  * Each entry in `commandArgs` includes:
- * - name
- * - type
- * - isArray
- * - hasLength
- * - nameLength
  * - formatChar
+ * - hasLength
+ * - isArray
+ * - name
+ * - nameLength
+ * - type
  *
  * @param {*} options
  * @returns Promise of content.
@@ -999,45 +999,45 @@ function zcl_global_commands(options) {
  * in the database. If used within zcl_cluster context, it iterates over all the attributes
  * that belong to that cluster.
  * From `exports.map.attribute` in `src-electron/db/db-mapping.js`:
- * - id
- * - clusterRef
- * - packageRef
- * - code
+ * - apiMaturity
  * - clusterCode
- * - manufacturerCode
- * - name
- * - label
- * - type
- * - side
- * - define
+ * - clusterRef
+ * - code
  * - conformance
- * - min
- * - max
- * - minLength
- * - maxLength
- * - reportMinInterval
- * - reportMaxInterval
- * - reportableChange
- * - reportableChangeLength
- * - isWritable
- * - isWritableAttribute
+ * - defaultValue
+ * - define
+ * - entryType
+ * - entryTypeElseType
+ * - id
+ * - isArray
+ * - isChangeOmitted
+ * - isNullable
+ * - isOptional
  * - isReadable
  * - isReadableAttribute
- * - isNullable
- * - defaultValue
- * - isOptional
  * - isReportable
  * - isReportableAttribute
- * - reportingPolicy
- * - storagePolicy
  * - isSceneRequired
- * - entryType
- * - isArray
+ * - isWritable
+ * - isWritableAttribute
+ * - label
+ * - manufacturerCode
+ * - max
+ * - maxLength
+ * - min
+ * - minLength
  * - mustUseTimedWrite
- * - apiMaturity
- * - isChangeOmitted
+ * - name
+ * - packageRef
  * - persistence
- * - entryTypeElseType
+ * - reportableChange
+ * - reportableChangeLength
+ * - reportMaxInterval
+ * - reportMinInterval
+ * - reportingPolicy
+ * - side
+ * - storagePolicy
+ * - type
  *
  * @param {*} options
  * @returns Promise of attribute iteration.
@@ -1158,19 +1158,19 @@ async function zcl_attributes_server(options) {
 /**
  * Block helper iterating over all atomic types.
  * From `exports.map.atomic` in `src-electron/db/db-mapping.js`:
- * - id
  * - atomicId
- * - name
- * - description
- * - size
- * - isDiscrete
- * - isString
- * - isLong
- * - isChar
- * - isSigned
- * - isComposite
- * - isFloat
  * - baseType
+ * - description
+ * - id
+ * - isChar
+ * - isComposite
+ * - isDiscrete
+ * - isFloat
+ * - isLong
+ * - isSigned
+ * - isString
+ * - name
+ * - size
  *
  * @param {*} options
  * @returns Promise of content.
@@ -1458,28 +1458,28 @@ function command_arguments_total_length(commandId) {
  * Block helper iterating over command arguments within a command
  * or a command tree.
  * From `exports.map.commandArgument` in `src-electron/db/db-mapping.js`:
- * - commandRef
- * - fieldIdentifier
- * - label
- * - name
- * - type
- * - typeSize
- * - typeIsSigned
- * - min
- * - max
- * - minLength
- * - maxLength
- * - defaultValue
+ * - apiMaturity
+ * - caption
  * - code
+ * - commandRef
+ * - countArg
+ * - defaultValue
+ * - fieldIdentifier
+ * - introducedInRef
  * - isArray
- * - presentIf
  * - isNullable
  * - isOptional
- * - introducedInRef
+ * - label
+ * - max
+ * - maxLength
+ * - min
+ * - minLength
+ * - name
+ * - presentIf
  * - removedInRef
- * - countArg
- * - caption
- * - apiMaturity
+ * - type
+ * - typeIsSigned
+ * - typeSize
  * When arguments are loaded from the database, this helper refreshes `typeSize`
  * and `typeIsSigned` from resolved ZCL types.
  *
@@ -1535,14 +1535,14 @@ async function zcl_command_arguments(options) {
 /**
  * Block helper iterating over the event fields inside an event.
  * From `exports.map.eventField` in `src-electron/db/db-mapping.js`:
- * - fieldIdentifier
- * - name
- * - type
+ * - apiMaturity
  * - defaultValue
+ * - fieldIdentifier
  * - isArray
  * - isNullable
  * - isOptional
- * - apiMaturity
+ * - name
+ * - type
  *
  * @param {*} options
  */
@@ -3114,16 +3114,16 @@ due to no language option specified in the template'
  * eg Usage:
  * {{#structs_with_clusters groupByStructName=1}}{{/structs_with_clusters}}
  * From `exports.map.struct` in `src-electron/db/db-mapping.js`:
+ * - apiMaturity
+ * - caption
+ * - clusterName
  * - id
+ * - isFabricScoped
+ * - itemCnt
  * - label
  * - name
- * - itemCnt
- * - isFabricScoped
- * - caption
  * - structClusterCount
  * - structCount
- * - clusterName
- * - apiMaturity
  */
 async function structs_with_clusters(options) {
   const packageIds = await templateUtil.ensureZclPackageIds(this)
