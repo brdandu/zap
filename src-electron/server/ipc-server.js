@@ -26,7 +26,6 @@ const env = require('../util/env')
 const path = require('path')
 const os = require('os')
 const util = require('../util/util.js')
-const watchdog = require('../main-process/watchdog')
 const httpServer = require('./http-server.js')
 const startup = require('../main-process/startup.js')
 const queryPackage = require('../db/query-package.js')
@@ -189,8 +188,8 @@ const handlers = [
 /**
  * Runs just before every time IPC request is processed.
  */
-function preHandler() {
-  watchdog.reset()
+function preHandler(serverWatchdog) {
+  serverWatchdog?.reset()
 }
 
 /**
@@ -199,7 +198,7 @@ function preHandler() {
  * @parem {*} isServer 'true' if this is a server, 'false' for client.
  * @param {*} options
  */
-async function initServer(db = null, httpPort = 0) {
+async function initServer(db = null, httpPort = 0, serverWatchdog = null) {
   return new Promise((resolve, reject) => {
     server.ipc.config.logger = log
     server.ipc.config.id = 'main'
@@ -214,7 +213,7 @@ async function initServer(db = null, httpPort = 0) {
       })
       server.ipc.server.on('connect', () => {
         env.logIpc('New connection.')
-        watchdog.reset()
+        serverWatchdog?.reset()
       })
       server.ipc.server.on('destroy', () => {
         env.logIpc('IPC server destroyed.')
@@ -223,7 +222,7 @@ async function initServer(db = null, httpPort = 0) {
       // Register individual type handlers
       handlers.forEach((handlerRecord) => {
         server.ipc.server.on(handlerRecord.eventType, (data, socket) => {
-          preHandler()
+          preHandler(serverWatchdog)
           handlerRecord.handler(
             {
               db: db,

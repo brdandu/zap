@@ -30,7 +30,6 @@ const webSocket = require('./ws-server.js')
 const studio = require('../ide-integration/studio-rest-api')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const watchdog = require('../main-process/watchdog')
 const initialize = require('../rest/initialize')
 const dirtyFlag = require('../util/async-reporting')
 const notification = require('../db/query-session-notification.js')
@@ -118,9 +117,11 @@ async function initHttpServer(
   options = {
     allowCors: false,
     zcl: env.builtinSilabsZclMetafile(),
-    template: env.builtinTemplateMetafile()
+    template: env.builtinTemplateMetafile(),
+    watchdog: null
   }
 ) {
+  const serverWatchdog = options.watchdog
   return new Promise((resolve, reject) => {
     const app = express()
 
@@ -174,7 +175,7 @@ async function initHttpServer(
 
     webSocket.initializeWebSocket(httpServer)
     webSocket.onWebSocket(dbEnum.wsCategory.tick, () => {
-      watchdog.reset()
+      serverWatchdog?.reset()
     })
     studio.initIdeIntegration(db, studioPort)
     dirtyFlag.startAsyncReporting(db)
