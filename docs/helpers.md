@@ -100,6 +100,16 @@ Access helper iterates across all the access triplets associated with the elemen
 For each element, context contains role, operation, accessModifier.
 Additionally it creates booleans hasRole, hasOperation and hasAccessModifier
 and hasAtLeastOneAccessElement and hasAllAccessElements
+From `exports.map.access` in `src-electron/db/db-mapping.js`:
+- accessModifier
+- operation
+- role
+Helper-added:
+- hasAccessModifier
+- hasAllAccessElements
+- hasAtLeastOneAccessElement
+- hasOperation
+- hasRole
 
 **Kind**: inner method of [<code>Templating API: Access helpers</code>](#module_Templating API_ Access helpers)  
 
@@ -111,6 +121,16 @@ and hasAtLeastOneAccessElement and hasAllAccessElements
 
 ### Templating API: Access helpers~default\_access(options) ⇒
 Get the access list information.
+From `exports.map.access` in `src-electron/db/db-mapping.js`:
+- accessModifier
+- operation
+- role
+Helper-added (same as `access`):
+- hasAccessModifier
+- hasAllAccessElements
+- hasAtLeastOneAccessElement
+- hasOperation
+- hasRole
 
 **Kind**: inner method of [<code>Templating API: Access helpers</code>](#module_Templating API_ Access helpers)  
 **Returns**: access list  
@@ -1989,6 +2009,22 @@ Creates block iterator over the endpoints.
 ### Templating API: user-data specific helpers~user\_device\_types(options)
 Creates device type iterator over an endpoint type id.
 This works inside user_endpoints or user_endpoint_types.
+From `exports.map.endpointTypeDeviceExtended` in `src-electron/db/db-mapping.js`:
+- clusterId
+- composition
+- conformance
+- deviceId
+- deviceIdentifier
+- deviceTypeOrder
+- deviceTypeRef
+- deviceVersion
+- endpointTypeId
+- endpointTypeRef
+- featureBit
+- featureCode
+- featureId
+- featureName
+- id
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
 
@@ -2002,6 +2038,14 @@ This works inside user_endpoints or user_endpoint_types.
 Creates iterator over endpoint composition requirements for a device type.
 This works inside user_device_types context where device type ref is available.
 Returns required device types that must be on separate endpoints.
+From `exports.map.endpointCompositionRequirement` in `src-electron/db/db-mapping.js`:
+- compositionType
+- conformance
+- deviceConstraint
+- endpointCompositionId
+- requiredDeviceCode
+- requiredDeviceName
+- requiredDeviceTypeRef
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
 
@@ -2013,6 +2057,20 @@ Returns required device types that must be on separate endpoints.
 
 ### Templating API: user-data specific helpers~user\_endpoint\_types(options)
 Creates block iterator helper over the endpoint types.
+From `exports.map.endpointType` in `src-electron/db/db-mapping.js`:
+- deviceTypeRef
+- deviceTypes
+- endpointTypeId
+- id
+- name
+- sessionRef
+Also populated in `query-endpoint-type.selectAllEndpointTypes`:
+- deviceCategory
+- deviceIdentifier
+- devicePackageRef
+- deviceTypeCode
+- deviceTypeName
+- deviceVersion
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
 
@@ -2808,6 +2866,25 @@ Check if multi-protocol is enabled for the application.
 
 ### Templating API: user-data specific helpers~all\_multi\_protocol\_attributes(options) ⇒
 Retrieve all the attribute-attribute associations for the current session.
+From `exports.map.attributeMapping` in `src-electron/db/db-mapping.js`:
+- attributeCode1
+- attributeCode2
+- attributeMappingId
+- attributeMfgCode1
+- attributeMfgCode2
+- attributeName1
+- attributeName2
+- attributeRef1
+- attributeRef2
+- clusterCode1
+- clusterCode2
+- clusterMappingIndex
+- clusterMfgCode1
+- clusterMfgCode2
+- clusterName1
+- clusterName2
+- isLastPartition
+- totalClusterMappedAttributes
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module_Templating API_ user-data specific helpers)  
 **Returns**: attribute-attribute mapping entries  
@@ -2917,7 +2994,65 @@ or non-singleton(Available with endpointTypeRef only)
 endpoint information. Singleton attributes are only returned once whereas
 non-singleton attributes are returned per endpoint. However if used within
 an endpoint block helper it returns token_attributes for a given endpoint
-type.  
+type.
+From `exports.map.endpointTypeAttributeExtended` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- arrayType
+- attributeRef
+- bounded
+- clusterDefine
+- clusterMfgCode
+- clusterName
+- clusterRef
+- clusterSide
+- code
+- conformance
+- defaultValue
+- define
+- endpointId
+- endpointTypeRef
+- entryType
+- hexCode
+- id
+- included
+- includedReportable
+- isArray
+- isBound
+- isChangeOmitted
+- isClusterEnabled
+- isGlobalAttribute
+- isIncluded
+- isManufacturingSpecific
+- isNullable
+- isOptionalAttribute
+- isReadable
+- isReadableAttribute
+- isReportableAttribute
+- isSceneRequired
+- isSingleton
+- isWritable
+- isWritableAttribute
+- manufacturerCode
+- max
+- maxInterval
+- maxLength
+- mfgCode
+- min
+- minInterval
+- minLength
+- mustUseTimedWrite
+- name
+- persistence
+- reportableChange
+- reportMaxInterval
+- reportMinInterval
+- side
+- singleton
+- smallestEndpointIdentifier
+- storage
+- storageOption
+- tokenId
+- type  
 
 | Param | Type |
 | --- | --- |
@@ -2936,7 +3071,33 @@ or non-singleton attributes.
 
 **Kind**: inner method of [<code>Templating API: Token helpers</code>](#module_Templating API_ Token helpers)  
 **Returns**: Token associated clusters for a particular endpoint type or all
-token associated clusters across endpoints.  
+token associated clusters across endpoints.
+Per-endpoint mode (`selectTokenAttributeClustersForEndpoint`), from
+`exports.map.cluster` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- caption
+- code
+- define
+- description
+- domainName
+- id
+- isManufacturingSpecific
+- isSingleton
+- label
+- manufacturerCode
+- name
+- packageRef
+- revision
+Global mode (`selectAllUserClustersWithTokenAttributes`), from
+`exports.map.endpointTypeClusterExtended` in `src-electron/db/db-mapping.js`:
+- clusterRef
+- code
+- enabled
+- endpointTypeClusterId
+- endpointTypeRef
+- name
+- side
+- tokenAttributesCount  
 
 | Param | Type |
 | --- | --- |
@@ -3035,6 +3196,12 @@ return back slash
 
 ### Templating API: toplevel utility helpers~template\_options(category, options)
 Block helper that iterates over the package options of a given category.
+From `exports.map.options` in `src-electron/db/db-mapping.js`:
+- id
+- optionCategory
+- optionCode
+- optionLabel
+- packageRef
 
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
 
@@ -3443,6 +3610,18 @@ This module contains the API for templating. For more detailed instructions, rea
 
 ### Templating API: static zcl helpers~zcl\_bitmaps(options) ⇒
 Block helper iterating over all bitmaps.
+From `exports.map.bitmap` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- bitmapClusterCount
+- id
+- label
+- name
+- size
+- type
+Helper-added:
+- has_more_than_one_cluster
+- has_no_clusters
+- has_one_cluster
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3454,7 +3633,15 @@ Block helper iterating over all bitmaps.
 <a name="module_Templating API_ static zcl helpers..zcl_bitmap_items"></a>
 
 ### Templating API: static zcl helpers~zcl\_bitmap\_items(options)
-Iterates over enum items. Valid only inside zcl_enums.
+Iterates over bitmap fields. Valid only inside zcl_bitmaps.
+From `exports.map.bitmapField` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- bitmapRef
+- caption
+- label
+- mask
+- name
+- type
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 
@@ -3469,6 +3656,18 @@ Block helper iterating over all enums.
 If existing independently, it iterates over ALL the enums.
 Within a context of a cluster, it iterates only over the
 enums belonging to a cluster.
+From `exports.map.enum` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- caption
+- enumClusterCount
+- id
+- label
+- name
+- size
+Helper-added:
+- has_more_than_one_cluster
+- has_no_clusters
+- has_one_cluster
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3496,6 +3695,13 @@ structs belonging to a cluster.
 
 ### Templating API: static zcl helpers~zcl\_enum\_items(options)
 Iterates over enum items. Valid only inside zcl_enums.
+From `exports.map.enumItem` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- caption
+- enumRef
+- label
+- name
+- value
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 
@@ -3521,6 +3727,26 @@ mode="first_unused" (which is the default).
 
 ### Templating API: static zcl helpers~zcl\_struct\_items(options) ⇒
 Block helper iterating over all struct items. Valid only inside zcl_structs.
+From `exports.map.structItem` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- dataTypeReference
+- defaultValue
+- discriminatorName
+- fieldIdentifier
+- isArray
+- isEnum
+- isFabricSensitive
+- isNullable
+- isOptional
+- isWritable
+- label
+- maxLength
+- minLength
+- name
+- structRef
+- type
+When `checkForDoubleNestedArray` is true, the helper may also set:
+- struct_item_contains_nested_array
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3533,6 +3759,24 @@ Block helper iterating over all struct items. Valid only inside zcl_structs.
 
 ### Templating API: static zcl helpers~zcl\_struct\_items\_by\_struct\_name(name, options) ⇒
 Block helper iterating over all struct items given the struct name.
+From `exports.map.structItem` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- dataTypeReference
+- defaultValue
+- discriminatorName
+- fieldIdentifier
+- isArray
+- isEnum
+- isFabricSensitive
+- isNullable
+- isOptional
+- isWritable
+- label
+- maxLength
+- minLength
+- name
+- structRef
+- type
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3550,6 +3794,24 @@ cluster name.  The items iterated will be those that correspond to that
 struct name being used within the given cluster.  That means the struct name
 must be either a global struct (in which case the cluster name is just
 ignored), or a struct associated with the given cluster.
+From `exports.map.structItem` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- dataTypeReference
+- defaultValue
+- discriminatorName
+- fieldIdentifier
+- isArray
+- isEnum
+- isFabricSensitive
+- isNullable
+- isOptional
+- isWritable
+- label
+- maxLength
+- minLength
+- name
+- structRef
+- type
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3564,6 +3826,17 @@ ignored), or a struct associated with the given cluster.
 
 ### Templating API: static zcl helpers~zcl\_device\_types(options) ⇒
 Block helper iterating over all deviceTypes.
+From `exports.map.deviceType` in `src-electron/db/db-mapping.js`:
+- caption
+- class
+- code
+- domain
+- id
+- label
+- name
+- packageRef
+- profileId
+- revision
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3576,6 +3849,15 @@ Block helper iterating over all deviceTypes.
 
 ### Templating API: static zcl helpers~zcl\_device\_type\_clusters(options) ⇒
 Block helper for use inside zcl_device_types
+From `exports.map.deviceTypeCluster` in `src-electron/db/db-mapping.js`:
+- clusterName
+- clusterRef
+- deviceTypeRef
+- id
+- includeClient
+- includeServer
+- lockClient
+- lockServer
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: blocks for clusters  
@@ -3588,6 +3870,13 @@ Block helper for use inside zcl_device_types
 
 ### Templating API: static zcl helpers~zcl\_device\_type\_cluster\_commands(options) ⇒
 Block helper for use inside zcl_device_type_clusters
+From `exports.map.deviceTypeCommand` in `src-electron/db/db-mapping.js`:
+- code
+- commandRef
+- deviceTypeClusterRef
+- manufacturerCode
+- name
+- source
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: blocks for commands  
@@ -3600,6 +3889,12 @@ Block helper for use inside zcl_device_type_clusters
 
 ### Templating API: static zcl helpers~zcl\_device\_type\_cluster\_attributes(options) ⇒
 Block helper for use inside zcl_device_type_clusters
+From `exports.map.deviceTypeAttribute` in `src-electron/db/db-mapping.js`:
+- attributeRef
+- code
+- deviceTypeClusterRef
+- manufacturerCode
+- name
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: blocks for attributes  
@@ -3612,6 +3907,21 @@ Block helper for use inside zcl_device_type_clusters
 
 ### Templating API: static zcl helpers~zcl\_clusters(options) ⇒
 Block helper iterating over all clusters.
+From `exports.map.cluster` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- caption
+- code
+- define
+- description
+- domainName
+- id
+- isManufacturingSpecific
+- isSingleton
+- label
+- manufacturerCode
+- name
+- packageRef
+- revision
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3627,6 +3937,43 @@ Block helper iterating over all commands.
 There are two modes of this helper:
   when used in a global context, it iterates over ALL commands in the database.
   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that cluster.
+From `exports.map.command` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- argCountArg
+- argDefaultValue
+- argIsArray
+- argIsNullable
+- argName
+- argPresentIf
+- argType
+- clusterCode
+- clusterDefineName
+- clusterName
+- clusterRef
+- code
+- commandArgCount
+- commandHasRequiredField
+- commandName
+- conformance
+- description
+- hasArguments
+- hasSpecificResponse
+- id
+- isDefaultResponseEnabled
+- isFabricScoped
+- isIncoming
+- isLargeMessage
+- isOptional
+- isOutgoing
+- label
+- manufacturerCode
+- mustUseTimedInvoke
+- name
+- packageRef
+- requiredCommandArgCount
+- responseName
+- responseRef
+- source
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3648,6 +3995,7 @@ There are two modes of this helper:
 the database.
 - when used inside a `zcl_cluster` block helper, it iterates only over the
 commands responses for that cluster.
+Uses the same `exports.map.command` keys as `zcl_commands` (see that helper).
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: all command responses  
@@ -3661,6 +4009,7 @@ commands responses for that cluster.
 ### Templating API: static zcl helpers~zcl\_commands\_with\_cluster\_info(options) ⇒
 Block helper iterating over all commands with cluster information.
 Note: Similar to zcl_commands but has cluster information as well.
+Uses the same `exports.map.command` keys as `zcl_commands` (see that helper).
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3687,6 +4036,7 @@ Block helper iterating over all client commands.
 There are two modes of this helper:
   when used in a global context, it iterates over ALL client commands in the database.
   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that client cluster.
+Uses the same `exports.map.command` keys as `zcl_commands` (see that helper).
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3702,6 +4052,7 @@ Block helper iterating over all server commands.
 There are two modes of this helper:
   when used in a global context, it iterates over ALL server commands in the database.
   when used inside a `zcl_cluster` block helper, it iterates only over the commands for that server cluster.
+Uses the same `exports.map.command` keys as `zcl_commands` (see that helper).
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3717,6 +4068,30 @@ Block helper iterating over all events.
 There are two modes of this helper:
   when used in a global context, it iterates over ALL events in the database.
   when used inside a `zcl_cluster` block helper, it iterates only over the events for that cluster.
+From `exports.map.event` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- clusterCode
+- clusterRef
+- code
+- conformance
+- description
+- id
+- isFabricSensitive
+- isOptional
+- manufacturerCode
+- name
+- packageRef
+- priority
+- side
+The helper adds `items`, an array of `exports.map.eventField` objects:
+- apiMaturity
+- defaultValue
+- fieldIdentifier
+- isArray
+- isNullable
+- isOptional
+- name
+- type
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3729,6 +4104,19 @@ There are two modes of this helper:
 
 ### Templating API: static zcl helpers~zcl\_command\_tree(options) ⇒
 Block helper iterating over all commands, including their arguments and clusters.
+Starts from `exports.map.command` rows (see `zcl_commands` for the per-key list),
+then aggregates and adds:
+- argsstring
+- clientMacroName
+- commandArgs
+- isGlobal
+Each entry in `commandArgs` includes:
+- formatChar
+- hasLength
+- isArray
+- name
+- nameLength
+- type
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3741,6 +4129,7 @@ Block helper iterating over all commands, including their arguments and clusters
 
 ### Templating API: static zcl helpers~zcl\_global\_commands(options) ⇒
 Helper to iterate over all global commands.
+Uses the same `exports.map.command` keys as `zcl_commands` (see that helper).
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of global command iteration.  
@@ -3755,6 +4144,46 @@ Helper to iterate over all global commands.
 Iterator over the attributes. If it is used at toplevel, if iterates over all the attributes
 in the database. If used within zcl_cluster context, it iterates over all the attributes
 that belong to that cluster.
+From `exports.map.attribute` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- clusterCode
+- clusterRef
+- code
+- conformance
+- defaultValue
+- define
+- entryType
+- entryTypeElseType
+- id
+- isArray
+- isChangeOmitted
+- isNullable
+- isOptional
+- isReadable
+- isReadableAttribute
+- isReportable
+- isReportableAttribute
+- isSceneRequired
+- isWritable
+- isWritableAttribute
+- label
+- manufacturerCode
+- max
+- maxLength
+- min
+- minLength
+- mustUseTimedWrite
+- name
+- packageRef
+- persistence
+- reportableChange
+- reportableChangeLength
+- reportMaxInterval
+- reportMinInterval
+- reportingPolicy
+- side
+- storagePolicy
+- type
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of attribute iteration.  
@@ -3769,6 +4198,7 @@ that belong to that cluster.
 Iterator over the client attributes. If it is used at toplevel, if iterates over all the client attributes
 in the database. If used within zcl_cluster context, it iterates over all the client attributes
 that belong to that cluster.
+Uses the same `exports.map.attribute` keys as `zcl_attributes` (see that helper).
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of attribute iteration.  
@@ -3787,6 +4217,8 @@ Available Options:
 - removeKeys: Removes one or more keys from the map(for eg keys in db-mapping.js)
 for eg: (#zcl_attributes_server removeKeys='isOptional, isNullable') will remove 'isOptional'
 from the results
+Uses the same `exports.map.attribute` keys as `zcl_attributes` (see that helper);
+`removeKeys` may delete some of those keys before iteration.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of attribute iteration.  
@@ -3799,6 +4231,20 @@ from the results
 
 ### Templating API: static zcl helpers~zcl\_atomics(options) ⇒
 Block helper iterating over all atomic types.
+From `exports.map.atomic` in `src-electron/db/db-mapping.js`:
+- atomicId
+- baseType
+- description
+- id
+- isChar
+- isComposite
+- isDiscrete
+- isFloat
+- isLong
+- isSigned
+- isString
+- name
+- size
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3902,6 +4348,31 @@ returns an empty string.
 ### Templating API: static zcl helpers~zcl\_command\_arguments(options) ⇒
 Block helper iterating over command arguments within a command
 or a command tree.
+From `exports.map.commandArgument` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- caption
+- code
+- commandRef
+- countArg
+- defaultValue
+- fieldIdentifier
+- introducedInRef
+- isArray
+- isNullable
+- isOptional
+- label
+- max
+- maxLength
+- min
+- minLength
+- name
+- presentIf
+- removedInRef
+- type
+- typeIsSigned
+- typeSize
+When arguments are loaded from the database, this helper refreshes `typeSize`
+and `typeIsSigned` from resolved ZCL types.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of command argument iteration.  
@@ -3914,6 +4385,15 @@ or a command tree.
 
 ### Templating API: static zcl helpers~zcl\_event\_fields(options)
 Block helper iterating over the event fields inside an event.
+From `exports.map.eventField` in `src-electron/db/db-mapping.js`:
+- apiMaturity
+- defaultValue
+- fieldIdentifier
+- isArray
+- isNullable
+- isOptional
+- name
+- type
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 
@@ -4612,7 +5092,7 @@ Returns all structs which have clusters associated with them
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>\*</code> | Available Options: - groupByStructName: Can group the query results based on struct name for structs which are present in more than one cluster eg Usage: {{#structs_with_clusters groupByStructName=1}}{{/structs_with_clusters}} |
+| options | <code>\*</code> | Available Options: - groupByStructName: Can group the query results based on struct name for structs which are present in more than one cluster eg Usage: {{#structs_with_clusters groupByStructName=1}}{{/structs_with_clusters}} From `exports.map.struct` in `src-electron/db/db-mapping.js`: - apiMaturity - caption - clusterName - id - isFabricScoped - itemCnt - label - name - structClusterCount - structCount |
 
 <a name="module_Templating API_ static zcl helpers..as_zcl_type_size"></a>
 

@@ -112,6 +112,22 @@ function user_endpoints(options) {
 /**
  * Creates device type iterator over an endpoint type id.
  * This works inside user_endpoints or user_endpoint_types.
+ * From `exports.map.endpointTypeDeviceExtended` in `src-electron/db/db-mapping.js`:
+ * - clusterId
+ * - composition
+ * - conformance
+ * - deviceId
+ * - deviceIdentifier
+ * - deviceTypeOrder
+ * - deviceTypeRef
+ * - deviceVersion
+ * - endpointTypeId
+ * - endpointTypeRef
+ * - featureBit
+ * - featureCode
+ * - featureId
+ * - featureName
+ * - id
  * @param {*} options
  */
 async function user_device_types(options) {
@@ -130,6 +146,14 @@ async function user_device_types(options) {
  * Creates iterator over endpoint composition requirements for a device type.
  * This works inside user_device_types context where device type ref is available.
  * Returns required device types that must be on separate endpoints.
+ * From `exports.map.endpointCompositionRequirement` in `src-electron/db/db-mapping.js`:
+ * - compositionType
+ * - conformance
+ * - deviceConstraint
+ * - endpointCompositionId
+ * - requiredDeviceCode
+ * - requiredDeviceName
+ * - requiredDeviceTypeRef
  * @param {*} options
  */
 async function user_endpoint_composition_requirements(options) {
@@ -151,6 +175,20 @@ async function user_endpoint_composition_requirements(options) {
 
 /**
  * Creates block iterator helper over the endpoint types.
+ * From `exports.map.endpointType` in `src-electron/db/db-mapping.js`:
+ * - deviceTypeRef
+ * - deviceTypes
+ * - endpointTypeId
+ * - id
+ * - name
+ * - sessionRef
+ * Also populated in `query-endpoint-type.selectAllEndpointTypes`:
+ * - deviceCategory
+ * - deviceIdentifier
+ * - devicePackageRef
+ * - deviceTypeCode
+ * - deviceTypeName
+ * - deviceVersion
  *
  * @tutorial template-tutorial
  * @param {*} options
@@ -1670,6 +1708,25 @@ async function if_multi_protocol_attributes_enabled(options) {
 
 /**
  * Retrieve all the attribute-attribute associations for the current session.
+ * From `exports.map.attributeMapping` in `src-electron/db/db-mapping.js`:
+ * - attributeCode1
+ * - attributeCode2
+ * - attributeMappingId
+ * - attributeMfgCode1
+ * - attributeMfgCode2
+ * - attributeName1
+ * - attributeName2
+ * - attributeRef1
+ * - attributeRef2
+ * - clusterCode1
+ * - clusterCode2
+ * - clusterMappingIndex
+ * - clusterMfgCode1
+ * - clusterMfgCode2
+ * - clusterName1
+ * - clusterName2
+ * - isLastPartition
+ * - totalClusterMappedAttributes
  * @param {*} options
  * @returns attribute-attribute mapping entries
  */
