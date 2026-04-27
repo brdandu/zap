@@ -21878,6 +21878,7 @@ This module provides the APIs for dotdot Loading
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
     * [~extractAccessIntoArray(xmlElement)](#module_Loader API_ Loader APIs..extractAccessIntoArray) ⇒
+    * [~isAccessFabricSensitive(xmlElement)](#module_Loader API_ Loader APIs..isAccessFabricSensitive) ⇒
     * [~prepareCluster(cluster)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~processClusters(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusters) ⇒
     * [~processClusterGlobalAttributes(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterGlobalAttributes) ⇒
@@ -22691,6 +22692,21 @@ Extract list of access information
 | Param | Type |
 | --- | --- |
 | xmlElement | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..isAccessFabricSensitive"></a>
+
+### Loader API: Loader APIs~isAccessFabricSensitive(xmlElement) ⇒
+Check whether any <access fabricSensitive="true"/> child is present on the
+given parsed XML element. For attributes, the CSA data model only uses this
+form (not isFabricSensitive on the attribute start tag), e.g.
+  <access read="true" readPrivilege="manage" fabricSensitive="true"/>
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Whether any access child has fabricSensitive="true"  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| xmlElement | <code>\*</code> | xml2js-parsed element that may contain an `access` array |
 
 <a name="module_Loader API_ Loader APIs..prepareCluster"></a>
 
@@ -23739,6 +23755,7 @@ This module provides the APIs for new data model loading
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
     * [~extractAccessIntoArray(xmlElement)](#module_Loader API_ Loader APIs..extractAccessIntoArray) ⇒
+    * [~isAccessFabricSensitive(xmlElement)](#module_Loader API_ Loader APIs..isAccessFabricSensitive) ⇒
     * [~prepareCluster(cluster)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~processClusters(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusters) ⇒
     * [~processClusterGlobalAttributes(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterGlobalAttributes) ⇒
@@ -24552,6 +24569,21 @@ Extract list of access information
 | Param | Type |
 | --- | --- |
 | xmlElement | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..isAccessFabricSensitive"></a>
+
+### Loader API: Loader APIs~isAccessFabricSensitive(xmlElement) ⇒
+Check whether any <access fabricSensitive="true"/> child is present on the
+given parsed XML element. For attributes, the CSA data model only uses this
+form (not isFabricSensitive on the attribute start tag), e.g.
+  <access read="true" readPrivilege="manage" fabricSensitive="true"/>
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Whether any access child has fabricSensitive="true"  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| xmlElement | <code>\*</code> | xml2js-parsed element that may contain an `access` array |
 
 <a name="module_Loader API_ Loader APIs..prepareCluster"></a>
 
@@ -25600,6 +25632,7 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
     * [~extractAccessIntoArray(xmlElement)](#module_Loader API_ Loader APIs..extractAccessIntoArray) ⇒
+    * [~isAccessFabricSensitive(xmlElement)](#module_Loader API_ Loader APIs..isAccessFabricSensitive) ⇒
     * [~prepareCluster(cluster)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~processClusters(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusters) ⇒
     * [~processClusterGlobalAttributes(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterGlobalAttributes) ⇒
@@ -26413,6 +26446,21 @@ Extract list of access information
 | Param | Type |
 | --- | --- |
 | xmlElement | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..isAccessFabricSensitive"></a>
+
+### Loader API: Loader APIs~isAccessFabricSensitive(xmlElement) ⇒
+Check whether any <access fabricSensitive="true"/> child is present on the
+given parsed XML element. For attributes, the CSA data model only uses this
+form (not isFabricSensitive on the attribute start tag), e.g.
+  <access read="true" readPrivilege="manage" fabricSensitive="true"/>
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Whether any access child has fabricSensitive="true"  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| xmlElement | <code>\*</code> | xml2js-parsed element that may contain an `access` array |
 
 <a name="module_Loader API_ Loader APIs..prepareCluster"></a>
 
@@ -27461,6 +27509,7 @@ This module provides the APIs for for common functionality related to loading.
     * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
     * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
     * [~extractAccessIntoArray(xmlElement)](#module_Loader API_ Loader APIs..extractAccessIntoArray) ⇒
+    * [~isAccessFabricSensitive(xmlElement)](#module_Loader API_ Loader APIs..isAccessFabricSensitive) ⇒
     * [~prepareCluster(cluster)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~processClusters(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusters) ⇒
     * [~processClusterGlobalAttributes(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterGlobalAttributes) ⇒
@@ -28274,6 +28323,21 @@ Extract list of access information
 | Param | Type |
 | --- | --- |
 | xmlElement | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..isAccessFabricSensitive"></a>
+
+### Loader API: Loader APIs~isAccessFabricSensitive(xmlElement) ⇒
+Check whether any <access fabricSensitive="true"/> child is present on the
+given parsed XML element. For attributes, the CSA data model only uses this
+form (not isFabricSensitive on the attribute start tag), e.g.
+  <access read="true" readPrivilege="manage" fabricSensitive="true"/>
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Whether any access child has fabricSensitive="true"  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| xmlElement | <code>\*</code> | xml2js-parsed element that may contain an `access` array |
 
 <a name="module_Loader API_ Loader APIs..prepareCluster"></a>
 
