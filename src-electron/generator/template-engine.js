@@ -28,6 +28,7 @@ const notification = require('../db/query-session-notification.js')
 const util = require('../util/util')
 const helper = require('../util/external-helper')
 const templateIterators = require('./template-iterators')
+const watchdog = require('../main-process/watchdog')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -70,7 +71,12 @@ const precompiledTemplates = {}
 
 const handlebarsInstance = {}
 
-const TEMPLATE_RENDER_TIMEOUT = 540000 // 9 minutes
+// Per-render idle watchdog: a render is killed if it makes no progress
+// (no helper invocation, no deferred block) for this long. Reset on activity
+// so long-but-healthy generations keep running.
+const TEMPLATE_RENDER_IDLE_TIMEOUT = 60000 // 1 minute of no progress
+// Absolute safety net; a render cannot exceed this even if it keeps kicking.
+const TEMPLATE_RENDER_HARD_TIMEOUT = 540000 // 9 minutes
 
 /**
  * Resolves into a precompiled template, either from previous precompile or freshly compiled.
@@ -243,25 +249,49 @@ async function produceContent(
     Object.assign(context, options.initialContext)
   }
   let content
-  // Render the template but if it does not render within
-  // TEMPLATE_RENDER_TIMEOUT then throw an error instead of just hanging
-  // forever.
-  try {
-    // Attempt to render the template
-    content = await Promise.race([
-      template(context),
-      new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error('Template rendering timed out')),
-          TEMPLATE_RENDER_TIMEOUT
+  // Render the template (main pass + deferred blocks) under two timers:
+  //  - An idle watchdog that trips only if the render makes no progress
+  //    for TEMPLATE_RENDER_IDLE_TIMEOUT ms (reset on every helper call and
+  //    on each deferred block). This catches true hangs quickly without
+  //    penalizing large, healthy generations.
+  //  - A hard deadline (TEMPLATE_RENDER_HARD_TIMEOUT) as a final safety net.
+  //  Both timers apply to the whole pipeline via a single Promise.race.
+  let idleWatchdog = null
+  let hardTimer = null
+  const timeoutPromise = new Promise((_, reject) => {
+    idleWatchdog = watchdog.createWatchdog(TEMPLATE_RENDER_IDLE_TIMEOUT, () =>
+      reject(
+        new Error(
+          `Template rendering stalled: no progress for ${TEMPLATE_RENDER_IDLE_TIMEOUT}ms in ${singleTemplatePkg.path}`
         )
       )
-    ])
-    // Render deferred blocks (parallel; order preserved by Promise.all)
-    const deferredParts = await Promise.all(
-      context.global.deferredBlocks.map((block) => block(context))
     )
-    content += deferredParts.join('')
+    hardTimer = setTimeout(
+      () =>
+        reject(
+          new Error(
+            `Template rendering exceeded hard timeout of ${TEMPLATE_RENDER_HARD_TIMEOUT}ms in ${singleTemplatePkg.path}`
+          )
+        ),
+      TEMPLATE_RENDER_HARD_TIMEOUT
+    )
+    if (typeof hardTimer.unref === 'function') hardTimer.unref()
+  })
+  context.global.watchdog = idleWatchdog
+  try {
+    content = await Promise.race([
+      (async () => {
+        const mainContent = await template(context)
+        const deferredParts = await Promise.all(
+          context.global.deferredBlocks.map((block) => {
+            idleWatchdog.reset()
+            return block(context)
+          })
+        )
+        return mainContent + deferredParts.join('')
+      })(),
+      timeoutPromise
+    ])
   } catch (error) {
     // Log the error and throw it
     notification.setNotification(
@@ -277,6 +307,10 @@ async function produceContent(
       error
     )
     throw error
+  } finally {
+    idleWatchdog?.stop()
+    if (hardTimer != null) clearTimeout(hardTimer)
+    context.global.watchdog = null
   }
   return [
     {
@@ -352,6 +386,9 @@ function loadPartial(hb, name, data) {
  */
 function helperWrapper(wrappedHelper) {
   return function w(...args) {
+    // Kick the per-render watchdog: a helper call is a sign of progress,
+    // so the idle timer should not expire.
+    this.global?.watchdog?.reset()
     let helperName = wrappedHelper.name
     if (wrappedHelper.originalHelper != null) {
       helperName = wrappedHelper.originalHelper

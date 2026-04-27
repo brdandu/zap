@@ -21,25 +21,36 @@
  * @module watchdog API: initializes times.
  */
 
-let watchDogId = null
-
 /**
- * Starts a zap watchdog.
+ * Creates an independent watchdog instance.
  *
- * @param {*} expirationInterval
- * @param {*} triggerFunction
+ * A watchdog is a refreshable timer: if `reset()` is not called within
+ * `expirationInterval` ms, `triggerFunction` fires once. Call `stop()` to
+ * cancel it entirely. Multiple watchdogs can coexist (e.g. one per
+ * template render and one for overall server inactivity).
+ *
+ * @param {number} expirationInterval - ms of inactivity before triggering.
+ * @param {Function} triggerFunction - invoked when the watchdog expires.
+ * @returns {{ reset: Function, stop: Function }}
  */
-function start(expirationInterval, triggerFunction) {
-  watchDogId = setTimeout(triggerFunction, expirationInterval)
-  watchDogId.unref()
+function createWatchdog(expirationInterval, triggerFunction) {
+  let id = setTimeout(triggerFunction, expirationInterval)
+  // Do not keep the event loop alive just because of this timer.
+  if (typeof id.unref === 'function') id.unref()
+  let stopped = false
+  return {
+    reset() {
+      if (stopped) return
+      if (id != null && typeof id.refresh === 'function') id.refresh()
+    },
+    stop() {
+      stopped = true
+      if (id != null) {
+        clearTimeout(id)
+        id = null
+      }
+    }
+  }
 }
 
-/**
- * Resets a zap watchdog.
- */
-function reset() {
-  if (watchDogId != null) watchDogId.refresh()
-}
-
-exports.start = start
-exports.reset = reset
+exports.createWatchdog = createWatchdog

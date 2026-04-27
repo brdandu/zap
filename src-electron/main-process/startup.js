@@ -63,7 +63,7 @@ async function startNormal(quitFunction, argv) {
     env.zapVersion()
   )
 
-  watchdog.start(argv.watchdogTimer, () => {
+  const serverWatchdog = watchdog.createWatchdog(argv.watchdogTimer, () => {
     if (quitFunction != null) {
       quitFunction()
     } else {
@@ -88,9 +88,10 @@ async function startNormal(quitFunction, argv) {
       await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
         zcl: argv.zclProperties,
         template: argv.generationTemplate,
-        allowCors: argv.allowCors
+        allowCors: argv.allowCors,
+        watchdog: serverWatchdog
       })
-      await ipcServer.initServer(db, argv.httpPort)
+      await ipcServer.initServer(db, argv.httpPort, serverWatchdog)
     }
     let port = httpServer.httpServerPort()
 
@@ -641,7 +642,7 @@ async function startServer(argv, quitFunction) {
     env.zapVersion()
   )
 
-  watchdog.start(argv.watchdogTimer, () => {
+  const serverWatchdog = watchdog.createWatchdog(argv.watchdogTimer, () => {
     if (quitFunction != null) {
       quitFunction()
     } else {
@@ -662,9 +663,10 @@ async function startServer(argv, quitFunction) {
     await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
       zcl: argv.zclProperties,
       template: argv.generationTemplate,
-      allowCors: argv.allowCors
+      allowCors: argv.allowCors,
+      watchdog: serverWatchdog
     })
-    await ipcServer.initServer(db, argv.httpPort)
+    await ipcServer.initServer(db, argv.httpPort, serverWatchdog)
     logRemoteData(httpServer.httpServerStartupMessage())
   } catch (err) {
     env.logError(err)
