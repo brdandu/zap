@@ -11991,6 +11991,7 @@ From `exports.map.endpointTypeAttributeExtended` in `src-electron/db/db-mapping.
 - isBound
 - isChangeOmitted
 - isClusterEnabled
+- isFabricSensitive
 - isGlobalAttribute
 - isIncluded
 - isManufacturingSpecific
@@ -13128,6 +13129,7 @@ From `exports.map.attribute` in `src-electron/db/db-mapping.js`:
 - id
 - isArray
 - isChangeOmitted
+- isFabricSensitive
 - isNullable
 - isOptional
 - isReadable
