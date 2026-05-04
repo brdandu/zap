@@ -24,24 +24,6 @@ process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 let startTime = process.hrtime.bigint()
 let args = process.argv.slice(2)
 
-// For `validate` without an output file, the JSON report is printed to stdout.
-// Route this script's own dev-mode chatter (version stamping, SPA/backend
-// rebuild logs) to stderr so stdout remains clean and pipe-friendly.
-let isValidateToStdout =
-  args[0] === 'validate' &&
-  !args.some(
-    (a) =>
-      a === '-o' ||
-      a === '--output' ||
-      a === '--validateOutput' ||
-      a.startsWith('-o=') ||
-      a.startsWith('--output=') ||
-      a.startsWith('--validateOutput=')
-  )
-if (isValidateToStdout) {
-  console.log = (...a) => console.error(...a)
-}
-
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildSpaIfNeeded())
