@@ -104,10 +104,7 @@ function serverGet(url, config = null) {
   if (log) console.log(`GET → : ${url}, ${config}`)
   return axios['get'](fillUrl(url), fillConfig(config))
     .then((response) => processResponse('GET', url, response))
-    .catch((error) => {
-      console.log(error)
-      return Promise.reject(error)
-    })
+    .catch((error) => console.log(error))
 }
 
 /**
