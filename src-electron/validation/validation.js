@@ -188,12 +188,27 @@ async function validateXmlAttributeDefault(db, attribute, packageId) {
   // Validate numeric types
   else if (!types.isString(attribute.type)) {
     if (types.isFloat(attribute.type)) {
-      // Validate float
-      if (!isValidFloat(attribute.defaultValue)) {
+      // Resolve the float bit width so hex IEEE 754 bit-pattern bounds
+      // and defaults (the ZCL XML convention, e.g. min="0x0000"
+      // max="0x3F800000" for float_single) are decoded correctly. We
+      // have a packageId rather than a session here, so use the
+      // package-scoped type lookup directly.
+      let size
+      try {
+        const lookup = await types.getSignAndSizeOfZclType(db, attribute.type, [
+          packageId
+        ])
+        size =
+          lookup && lookup.dataTypesize ? lookup.dataTypesize * 8 : undefined
+      } catch (e) {
+        size = undefined
+      }
+      if (!isValidFloat(attribute.defaultValue, size)) {
         issues.push('Invalid Float')
       } else if (attribute.min != null || attribute.max != null) {
-        let bounds = getBoundsFloat(attribute)
-        if (!checkBoundsFloat(attribute.defaultValue, bounds.min, bounds.max)) {
+        let bounds = getBoundsFloat(attribute, size)
+        let value = getFloatFromAttribute(attribute.defaultValue, size)
+        if (!checkBoundsFloat(value, bounds.min, bounds.max)) {
           issues.push(`Out of range (min: ${bounds.min}, max: ${bounds.max})`)
         }
       }
@@ -277,11 +292,28 @@ async function validateSpecificAttribute(
     return { defaultValue: defaultAttributeIssues }
   } else if (!types.isString(attribute.type)) {
     if (types.isFloat(attribute.type)) {
-      if (!isValidFloat(endpointAttribute.defaultValue))
+      // Resolve the float type's bit width so hex IEEE 754 bit patterns
+      // (e.g. "0x3F800000" => 1.0 for float_single) are recognized as
+      // valid float defaults. This matches the ZCL/Matter XML convention
+      // for float min/max bounds.
+      const { size } = await getFloatAttributeSize(
+        db,
+        zapSessionId,
+        attribute.type,
+        attribute.clusterRef
+      )
+      if (!isValidFloat(endpointAttribute.defaultValue, size)) {
         defaultAttributeIssues.push('Invalid Float')
-      //Interpreting float values
-      if (!checkAttributeBoundsFloat(attribute, endpointAttribute))
+      } else if (
+        !(await checkAttributeBoundsFloat(
+          attribute,
+          endpointAttribute,
+          db,
+          zapSessionId
+        ))
+      ) {
         defaultAttributeIssues.push('Out of range')
+      }
     } else {
       // we shouldn't check boundaries for an invalid number string
       if (!isValidNumberString(endpointAttribute.defaultValue)) {
@@ -378,21 +410,105 @@ function isValidDecimalString(value) {
 /**
  * Check if value is a valid float value.
  *
+ * Decimal literals (e.g. "1.5", "-0.25", "1e40") are always accepted.
+ * When a typeSize is supplied, hex IEEE 754 bit-pattern literals are
+ * also accepted as long as they fit within the type's nibble width
+ * (e.g. "0x3F800000" for `float_single` decodes to 1.0). This mirrors
+ * the ZCL/Matter XML convention used for float min/max bounds.
+ *
  * @param {*} value
+ * @param {*} typeSize Optional bit width of the float type (16, 32, or 64).
+ * When omitted, hex strings are rejected (legacy decimal-only behavior).
  * @returns boolean
  */
-function isValidFloat(value) {
-  return !/^0x/i.test(value) && !isNaN(Number(value))
+function isValidFloat(value, typeSize) {
+  if (value == null) return false
+  const s = String(value)
+  if (/^0x/i.test(s)) {
+    if (typeSize == null) return false
+    return /^0x[0-9A-F]+$/i.test(s) && s.length - 2 <= typeSize / 4
+  }
+  return !isNaN(Number(s))
 }
 
 /**
  * Get float value from the given value.
+ * Hex strings (e.g. "0x42C80000") cannot be reliably decoded without knowing
+ * the bit-width, so they are returned as NaN and treated as unconstrained.
+ * Use {@link getFloatFromAttribute} when the float type's bit width is known
+ * and IEEE 754 hex bit patterns should be decoded.
  *
  * @param {*} value
- * @returns float value
+ * @returns float value, or NaN if value is null/undefined/hex
  */
 function extractFloatValue(value) {
+  if (value == null || /^0x/i.test(String(value))) return NaN
   return parseFloat(value)
+}
+
+/**
+ * Decodes a 16-bit IEEE 754 half-precision bit pattern into a Number.
+ * Implemented manually because Float16Array is not yet available across
+ * all supported Node versions. Counterpart of `convertFloatToBigEndian`
+ * for sizes the 32/64-bit DataView path cannot handle.
+ *
+ * @param {*} bits Unsigned 16-bit integer (0..0xFFFF)
+ * @returns Number
+ */
+function decodeFloat16(bits) {
+  const sign = (bits >> 15) & 0x1
+  const exp = (bits >> 10) & 0x1f
+  const frac = bits & 0x3ff
+  let value
+  if (exp === 0) {
+    // Subnormal (or signed zero when frac === 0).
+    value = frac === 0 ? 0 : Math.pow(2, -14) * (frac / 1024)
+  } else if (exp === 0x1f) {
+    value = frac === 0 ? Infinity : NaN
+  } else {
+    value = Math.pow(2, exp - 15) * (1 + frac / 1024)
+  }
+  return sign ? -value : value
+}
+
+/**
+ * Converts a float attribute string into a Number, honoring the IEEE 754
+ * bit-pattern hex convention used by ZCL/Matter XML for float min/max
+ * bounds and defaults (e.g. "0x3F800000" => 1.0 for `float_single`).
+ *
+ * Mirrors `getIntegerFromAttribute` on the integer side: the type's bit
+ * width drives how the string is decoded. Decimal literals fall through
+ * to `parseFloat`. Hex literals wider than the type can encode (more
+ * than `typeSize / 4` nibbles) return NaN so the caller can flag them.
+ *
+ * @param {*} attribute string representation of a float
+ * @param {*} typeSize bit width of the float type (16, 32, or 64)
+ * @returns Number, or NaN if the value cannot be decoded for typeSize
+ */
+function getFloatFromAttribute(attribute, typeSize) {
+  if (attribute == null) return NaN
+  const s = String(attribute)
+  if (/^0x/i.test(s)) {
+    // Anything that looks hex-prefixed must round-trip through a strict
+    // hex-digit check; otherwise parseFloat would silently consume just
+    // the leading "0" and return 0 for inputs like "0x12GH".
+    if (typeSize == null || !/^0x[0-9A-F]+$/i.test(s)) return NaN
+    const hex = s.slice(2)
+    if (hex.length > typeSize / 4) return NaN
+    if (typeSize === 16) {
+      return decodeFloat16(parseInt(hex, 16) & 0xffff)
+    } else if (typeSize === 32) {
+      const view = new DataView(new ArrayBuffer(4))
+      view.setUint32(0, parseInt(hex, 16) >>> 0, false)
+      return view.getFloat32(0, false)
+    } else if (typeSize === 64) {
+      const view = new DataView(new ArrayBuffer(8))
+      view.setBigUint64(0, BigInt(s), false)
+      return view.getFloat64(0, false)
+    }
+    return NaN
+  }
+  return parseFloat(s)
 }
 
 /**
@@ -589,28 +705,116 @@ function checkBoundsInteger(defaultValue, min, max) {
 }
 
 /**
- * Check if float attribute's value is within the bounds.
+ * Returns information about a float type by querying the data type
+ * metadata stored in the database. Mirrors getIntegerAttributeSize so
+ * the size lookup uses the same source of truth for both integer and
+ * float types and works for any float type defined in the loaded ZCL
+ * (e.g. silabs `float_semi`/`float_single`/`float_double` and Matter
+ * `single`/`double`).
+ *
+ * @param {*} db
+ * @param {*} zapSessionId
+ * @param {*} attribType
+ * @param {*} clusterRef
+ * @returns {*} { size: bit representation }
+ */
+async function getFloatAttributeSize(db, zapSessionId, attribType, clusterRef) {
+  let packageIds = await queryPackage.getSessionZclPackageIds(db, zapSessionId)
+  const attribData = await types.getSignAndSizeOfZclTypeAndClusterId(
+    db,
+    attribType,
+    clusterRef,
+    packageIds
+  )
+  if (attribData && attribData.dataTypesize) {
+    return { size: attribData.dataTypesize * 8 }
+  } else {
+    return { size: undefined }
+  }
+}
+
+/**
+ * Gets the representable range of a float type. Mirrors getTypeRange for
+ * integer types and is used as the fallback when an attribute does not
+ * explicitly declare min/max.
+ *
+ * @param {*} typeSize bit width of the float type
+ * @param {*} isMin true to return the minimum, false for the maximum
+ * @returns float
+ */
+function getFloatTypeRange(typeSize, isMin) {
+  let mag
+  switch (typeSize) {
+    case 16:
+      // IEEE 754 half precision: max representable finite magnitude
+      mag = 65504
+      break
+    case 32:
+      // IEEE 754 single precision: FLT_MAX
+      mag = 3.4028234663852886e38
+      break
+    case 64:
+    default:
+      mag = Number.MAX_VALUE
+      break
+  }
+  return isMin ? -mag : mag
+}
+
+/**
+ * Checks if the incoming float is within its attribute's bounds while
+ * honoring the representable range of the float type. Mirrors
+ * checkAttributeBoundsInteger: it first resolves the type metadata
+ * from the database, bails out if the type is unknown, and then
+ * compares against the (possibly type-defaulted) min/max bounds.
  *
  * @param {*} attribute
  * @param {*} endpointAttribute
+ * @param {*} db
+ * @param {*} zapSessionId
  * @returns boolean
  */
-function checkAttributeBoundsFloat(attribute, endpointAttribute) {
-  let { min, max } = getBoundsFloat(attribute)
-  let defaultValue = extractFloatValue(endpointAttribute.defaultValue)
+async function checkAttributeBoundsFloat(
+  attribute,
+  endpointAttribute,
+  db,
+  zapSessionId
+) {
+  const { size } = await getFloatAttributeSize(
+    db,
+    zapSessionId,
+    attribute.type,
+    attribute.clusterRef
+  )
+  if (size === undefined) {
+    return false
+  }
+  let { min, max } = getBoundsFloat(attribute, size)
+  let defaultValue = getFloatFromAttribute(endpointAttribute.defaultValue, size)
   return checkBoundsFloat(defaultValue, min, max)
 }
 
 /**
- * Get the bounds on a float attribute's value.
+ * Get the bounds on a float attribute's value. When the attribute does
+ * not declare an explicit min/max, the type's representable range is
+ * used as the fallback (mirroring getBoundsInteger).
  *
  * @param {*} attribute
+ * @param {*} typeSize bit width of the float type. When omitted the
+ * 64-bit IEEE 754 range is assumed, which keeps legacy single-argument
+ * callers (e.g. XML pre-validation, which has no session) working.
  * @returns object
  */
-function getBoundsFloat(attribute) {
+function getBoundsFloat(attribute, typeSize) {
   return {
-    min: extractFloatValue(attribute.min),
-    max: extractFloatValue(attribute.max)
+    min:
+      attribute.min != null
+        ? getFloatFromAttribute(attribute.min, typeSize)
+        : getFloatTypeRange(typeSize, true),
+    max:
+      attribute.max != null
+        ? getFloatFromAttribute(attribute.max, typeSize)
+        : getFloatTypeRange(typeSize, false)
   }
 }
 
@@ -623,8 +827,8 @@ function getBoundsFloat(attribute) {
  * @returns boolean
  */
 function checkBoundsFloat(defaultValue, min, max) {
-  if (Number.isNaN(min)) min = Number.MIN_VALUE
-  if (Number.isNaN(max)) max = Number.MAX_VALUE
+  if (min == null || Number.isNaN(min)) min = -Number.MAX_VALUE
+  if (max == null || Number.isNaN(max)) max = Number.MAX_VALUE
   return defaultValue >= min && defaultValue <= max
 }
 
@@ -643,6 +847,9 @@ exports.getBoundsInteger = getBoundsInteger
 exports.checkBoundsInteger = checkBoundsInteger
 exports.getBoundsFloat = getBoundsFloat
 exports.checkBoundsFloat = checkBoundsFloat
+exports.getFloatAttributeSize = getFloatAttributeSize
+exports.getFloatTypeRange = getFloatTypeRange
+exports.getFloatFromAttribute = getFloatFromAttribute
 exports.unsignedToSignedInteger = unsignedToSignedInteger
 exports.extractBigIntegerValue = extractBigIntegerValue
 exports.getIntegerAttributeSize = getIntegerAttributeSize

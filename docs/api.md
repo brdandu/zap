@@ -20662,8 +20662,10 @@ things were successful or not.
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
         * [~isValidHexString(value)](#module_Validation API_ Validation APIs..isValidHexString) ⇒
         * [~isValidDecimalString(value)](#module_Validation API_ Validation APIs..isValidDecimalString) ⇒
-        * [~isValidFloat(value)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
+        * [~isValidFloat(value, typeSize)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
         * [~extractFloatValue(value)](#module_Validation API_ Validation APIs..extractFloatValue) ⇒
+        * [~decodeFloat16(bits)](#module_Validation API_ Validation APIs..decodeFloat16) ⇒
+        * [~getFloatFromAttribute(attribute, typeSize)](#module_Validation API_ Validation APIs..getFloatFromAttribute) ⇒
         * [~extractIntegerValue(value)](#module_Validation API_ Validation APIs..extractIntegerValue) ⇒
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
@@ -20674,8 +20676,10 @@ things were successful or not.
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
         * [~checkBoundsInteger(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsInteger) ⇒
-        * [~checkAttributeBoundsFloat(attribute, endpointAttribute)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
-        * [~getBoundsFloat(attribute)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
+        * [~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getFloatAttributeSize) ⇒ <code>\*</code>
+        * [~getFloatTypeRange(typeSize, isMin)](#module_Validation API_ Validation APIs..getFloatTypeRange) ⇒
+        * [~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
+        * [~getBoundsFloat(attribute, typeSize)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
         * [~checkBoundsFloat(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsFloat) ⇒
 
 <a name="module_Validation API_ Validation APIs.initAsyncValidation"></a>
@@ -20852,27 +20856,73 @@ Check if value is a valid decimal string.
 
 <a name="module_Validation API_ Validation APIs..isValidFloat"></a>
 
-### Validation API: Validation APIs~isValidFloat(value) ⇒
+### Validation API: Validation APIs~isValidFloat(value, typeSize) ⇒
 Check if value is a valid float value.
+
+Decimal literals (e.g. "1.5", "-0.25", "1e40") are always accepted.
+When a typeSize is supplied, hex IEEE 754 bit-pattern literals are
+also accepted as long as they fit within the type's nibble width
+(e.g. "0x3F800000" for `float_single` decodes to 1.0). This mirrors
+the ZCL/Matter XML convention used for float min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
 
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>\*</code> |  |
+| typeSize | <code>\*</code> | Optional bit width of the float type (16, 32, or 64). When omitted, hex strings are rejected (legacy decimal-only behavior). |
 
 <a name="module_Validation API_ Validation APIs..extractFloatValue"></a>
 
 ### Validation API: Validation APIs~extractFloatValue(value) ⇒
 Get float value from the given value.
+Hex strings (e.g. "0x42C80000") cannot be reliably decoded without knowing
+the bit-width, so they are returned as NaN and treated as unconstrained.
+Use [getFloatFromAttribute](getFloatFromAttribute) when the float type's bit width is known
+and IEEE 754 hex bit patterns should be decoded.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
-**Returns**: float value  
+**Returns**: float value, or NaN if value is null/undefined/hex  
 
 | Param | Type |
 | --- | --- |
 | value | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..decodeFloat16"></a>
+
+### Validation API: Validation APIs~decodeFloat16(bits) ⇒
+Decodes a 16-bit IEEE 754 half-precision bit pattern into a Number.
+Implemented manually because Float16Array is not yet available across
+all supported Node versions. Counterpart of `convertFloatToBigEndian`
+for sizes the 32/64-bit DataView path cannot handle.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bits | <code>\*</code> | Unsigned 16-bit integer (0..0xFFFF) |
+
+<a name="module_Validation API_ Validation APIs..getFloatFromAttribute"></a>
+
+### Validation API: Validation APIs~getFloatFromAttribute(attribute, typeSize) ⇒
+Converts a float attribute string into a Number, honoring the IEEE 754
+bit-pattern hex convention used by ZCL/Matter XML for float min/max
+bounds and defaults (e.g. "0x3F800000" => 1.0 for `float_single`).
+
+Mirrors `getIntegerFromAttribute` on the integer side: the type's bit
+width drives how the string is decoded. Decimal literals fall through
+to `parseFloat`. Hex literals wider than the type can encode (more
+than `typeSize / 4` nibbles) return NaN so the caller can flag them.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number, or NaN if the value cannot be decoded for typeSize  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> | string representation of a float |
+| typeSize | <code>\*</code> | bit width of the float type (16, 32, or 64) |
 
 <a name="module_Validation API_ Validation APIs..extractIntegerValue"></a>
 
@@ -21014,10 +21064,49 @@ Check if an integer value is within the bounds.
 | min | <code>\*</code> | 
 | max | <code>\*</code> | 
 
+<a name="module_Validation API_ Validation APIs..getFloatAttributeSize"></a>
+
+### Validation API: Validation APIs~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef) ⇒ <code>\*</code>
+Returns information about a float type by querying the data type
+metadata stored in the database. Mirrors getIntegerAttributeSize so
+the size lookup uses the same source of truth for both integer and
+float types and works for any float type defined in the loaded ZCL
+(e.g. silabs `float_semi`/`float_single`/`float_double` and Matter
+`single`/`double`).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: <code>\*</code> - { size: bit representation }  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
+| attribType | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..getFloatTypeRange"></a>
+
+### Validation API: Validation APIs~getFloatTypeRange(typeSize, isMin) ⇒
+Gets the representable range of a float type. Mirrors getTypeRange for
+integer types and is used as the fallback when an attribute does not
+explicitly declare min/max.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: float  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeSize | <code>\*</code> | bit width of the float type |
+| isMin | <code>\*</code> | true to return the minimum, false for the maximum |
+
 <a name="module_Validation API_ Validation APIs..checkAttributeBoundsFloat"></a>
 
-### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute) ⇒
-Check if float attribute's value is within the bounds.
+### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId) ⇒
+Checks if the incoming float is within its attribute's bounds while
+honoring the representable range of the float type. Mirrors
+checkAttributeBoundsInteger: it first resolves the type metadata
+from the database, bails out if the type is unknown, and then
+compares against the (possibly type-defaulted) min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -21026,18 +21115,23 @@ Check if float attribute's value is within the bounds.
 | --- | --- |
 | attribute | <code>\*</code> | 
 | endpointAttribute | <code>\*</code> | 
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..getBoundsFloat"></a>
 
-### Validation API: Validation APIs~getBoundsFloat(attribute) ⇒
-Get the bounds on a float attribute's value.
+### Validation API: Validation APIs~getBoundsFloat(attribute, typeSize) ⇒
+Get the bounds on a float attribute's value. When the attribute does
+not declare an explicit min/max, the type's representable range is
+used as the fallback (mirroring getBoundsInteger).
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: object  
 
-| Param | Type |
-| --- | --- |
-| attribute | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> |  |
+| typeSize | <code>\*</code> | bit width of the float type. When omitted the 64-bit IEEE 754 range is assumed, which keeps legacy single-argument callers (e.g. XML pre-validation, which has no session) working. |
 
 <a name="module_Validation API_ Validation APIs..checkBoundsFloat"></a>
 
@@ -21596,8 +21690,10 @@ things were successful or not.
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
         * [~isValidHexString(value)](#module_Validation API_ Validation APIs..isValidHexString) ⇒
         * [~isValidDecimalString(value)](#module_Validation API_ Validation APIs..isValidDecimalString) ⇒
-        * [~isValidFloat(value)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
+        * [~isValidFloat(value, typeSize)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
         * [~extractFloatValue(value)](#module_Validation API_ Validation APIs..extractFloatValue) ⇒
+        * [~decodeFloat16(bits)](#module_Validation API_ Validation APIs..decodeFloat16) ⇒
+        * [~getFloatFromAttribute(attribute, typeSize)](#module_Validation API_ Validation APIs..getFloatFromAttribute) ⇒
         * [~extractIntegerValue(value)](#module_Validation API_ Validation APIs..extractIntegerValue) ⇒
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
@@ -21608,8 +21704,10 @@ things were successful or not.
         * [~getIntegerAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
         * [~checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsInteger) ⇒
         * [~checkBoundsInteger(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsInteger) ⇒
-        * [~checkAttributeBoundsFloat(attribute, endpointAttribute)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
-        * [~getBoundsFloat(attribute)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
+        * [~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef)](#module_Validation API_ Validation APIs..getFloatAttributeSize) ⇒ <code>\*</code>
+        * [~getFloatTypeRange(typeSize, isMin)](#module_Validation API_ Validation APIs..getFloatTypeRange) ⇒
+        * [~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId)](#module_Validation API_ Validation APIs..checkAttributeBoundsFloat) ⇒
+        * [~getBoundsFloat(attribute, typeSize)](#module_Validation API_ Validation APIs..getBoundsFloat) ⇒
         * [~checkBoundsFloat(defaultValue, min, max)](#module_Validation API_ Validation APIs..checkBoundsFloat) ⇒
 
 <a name="module_Validation API_ Validation APIs.initAsyncValidation"></a>
@@ -21786,27 +21884,73 @@ Check if value is a valid decimal string.
 
 <a name="module_Validation API_ Validation APIs..isValidFloat"></a>
 
-### Validation API: Validation APIs~isValidFloat(value) ⇒
+### Validation API: Validation APIs~isValidFloat(value, typeSize) ⇒
 Check if value is a valid float value.
+
+Decimal literals (e.g. "1.5", "-0.25", "1e40") are always accepted.
+When a typeSize is supplied, hex IEEE 754 bit-pattern literals are
+also accepted as long as they fit within the type's nibble width
+(e.g. "0x3F800000" for `float_single` decodes to 1.0). This mirrors
+the ZCL/Matter XML convention used for float min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
 
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>\*</code> |  |
+| typeSize | <code>\*</code> | Optional bit width of the float type (16, 32, or 64). When omitted, hex strings are rejected (legacy decimal-only behavior). |
 
 <a name="module_Validation API_ Validation APIs..extractFloatValue"></a>
 
 ### Validation API: Validation APIs~extractFloatValue(value) ⇒
 Get float value from the given value.
+Hex strings (e.g. "0x42C80000") cannot be reliably decoded without knowing
+the bit-width, so they are returned as NaN and treated as unconstrained.
+Use [getFloatFromAttribute](getFloatFromAttribute) when the float type's bit width is known
+and IEEE 754 hex bit patterns should be decoded.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
-**Returns**: float value  
+**Returns**: float value, or NaN if value is null/undefined/hex  
 
 | Param | Type |
 | --- | --- |
 | value | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..decodeFloat16"></a>
+
+### Validation API: Validation APIs~decodeFloat16(bits) ⇒
+Decodes a 16-bit IEEE 754 half-precision bit pattern into a Number.
+Implemented manually because Float16Array is not yet available across
+all supported Node versions. Counterpart of `convertFloatToBigEndian`
+for sizes the 32/64-bit DataView path cannot handle.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bits | <code>\*</code> | Unsigned 16-bit integer (0..0xFFFF) |
+
+<a name="module_Validation API_ Validation APIs..getFloatFromAttribute"></a>
+
+### Validation API: Validation APIs~getFloatFromAttribute(attribute, typeSize) ⇒
+Converts a float attribute string into a Number, honoring the IEEE 754
+bit-pattern hex convention used by ZCL/Matter XML for float min/max
+bounds and defaults (e.g. "0x3F800000" => 1.0 for `float_single`).
+
+Mirrors `getIntegerFromAttribute` on the integer side: the type's bit
+width drives how the string is decoded. Decimal literals fall through
+to `parseFloat`. Hex literals wider than the type can encode (more
+than `typeSize / 4` nibbles) return NaN so the caller can flag them.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Number, or NaN if the value cannot be decoded for typeSize  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> | string representation of a float |
+| typeSize | <code>\*</code> | bit width of the float type (16, 32, or 64) |
 
 <a name="module_Validation API_ Validation APIs..extractIntegerValue"></a>
 
@@ -21948,10 +22092,49 @@ Check if an integer value is within the bounds.
 | min | <code>\*</code> | 
 | max | <code>\*</code> | 
 
+<a name="module_Validation API_ Validation APIs..getFloatAttributeSize"></a>
+
+### Validation API: Validation APIs~getFloatAttributeSize(db, zapSessionId, attribType, clusterRef) ⇒ <code>\*</code>
+Returns information about a float type by querying the data type
+metadata stored in the database. Mirrors getIntegerAttributeSize so
+the size lookup uses the same source of truth for both integer and
+float types and works for any float type defined in the loaded ZCL
+(e.g. silabs `float_semi`/`float_single`/`float_double` and Matter
+`single`/`double`).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: <code>\*</code> - { size: bit representation }  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
+| attribType | <code>\*</code> | 
+| clusterRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..getFloatTypeRange"></a>
+
+### Validation API: Validation APIs~getFloatTypeRange(typeSize, isMin) ⇒
+Gets the representable range of a float type. Mirrors getTypeRange for
+integer types and is used as the fallback when an attribute does not
+explicitly declare min/max.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: float  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeSize | <code>\*</code> | bit width of the float type |
+| isMin | <code>\*</code> | true to return the minimum, false for the maximum |
+
 <a name="module_Validation API_ Validation APIs..checkAttributeBoundsFloat"></a>
 
-### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute) ⇒
-Check if float attribute's value is within the bounds.
+### Validation API: Validation APIs~checkAttributeBoundsFloat(attribute, endpointAttribute, db, zapSessionId) ⇒
+Checks if the incoming float is within its attribute's bounds while
+honoring the representable range of the float type. Mirrors
+checkAttributeBoundsInteger: it first resolves the type metadata
+from the database, bails out if the type is unknown, and then
+compares against the (possibly type-defaulted) min/max bounds.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -21960,18 +22143,23 @@ Check if float attribute's value is within the bounds.
 | --- | --- |
 | attribute | <code>\*</code> | 
 | endpointAttribute | <code>\*</code> | 
+| db | <code>\*</code> | 
+| zapSessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..getBoundsFloat"></a>
 
-### Validation API: Validation APIs~getBoundsFloat(attribute) ⇒
-Get the bounds on a float attribute's value.
+### Validation API: Validation APIs~getBoundsFloat(attribute, typeSize) ⇒
+Get the bounds on a float attribute's value. When the attribute does
+not declare an explicit min/max, the type's representable range is
+used as the fallback (mirroring getBoundsInteger).
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: object  
 
-| Param | Type |
-| --- | --- |
-| attribute | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> |  |
+| typeSize | <code>\*</code> | bit width of the float type. When omitted the 64-bit IEEE 754 range is assumed, which keeps legacy single-argument callers (e.g. XML pre-validation, which has no session) working. |
 
 <a name="module_Validation API_ Validation APIs..checkBoundsFloat"></a>
 
