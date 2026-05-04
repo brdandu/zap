@@ -323,6 +323,10 @@ and generate warnings for non-conformance.</p>
 <dt><a href="#module_Validation API_ Parse conformance data from XML">Validation API: Parse conformance data from XML</a></dt>
 <dd><p>This module provides utilities for parsing conformance data from XML into expressions.</p>
 </dd>
+<dt><a href="#module_Validation API_ validate all session elements">Validation API: validate all session elements</a></dt>
+<dd><p>Runs existing ZCL / data-model validators across an entire session (all endpoints,
+endpoint types, included attributes, and per-cluster conformance).</p>
+</dd>
 <dt><a href="#module_Validation API_ Validation APIs">Validation API: Validation APIs</a></dt>
 <dd><p>This module provides the APIs for validating inputs to the database, and returning flags indicating if
 things were successful or not.</p>
@@ -15748,6 +15752,7 @@ This module provides the API to access zcl specific information.
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
     * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
+    * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
@@ -16204,6 +16209,18 @@ Check if conformance data exists in the database
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetValidateAll"></a>
+
+### REST API: user data~httpGetValidateAll(db) ⇒
+HTTP GET: validate entire session (all endpoints, attribute defaults, conformance).
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: callback for the express uri registration  
 
 | Param | Type |
 | --- | --- |
@@ -17100,6 +17117,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
     * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
+    * [~httpGetValidateAll(db)](#module_REST API_ user data..httpGetValidateAll) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
@@ -17556,6 +17574,18 @@ Check if conformance data exists in the database
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetValidateAll"></a>
+
+### REST API: user data~httpGetValidateAll(db) ⇒
+HTTP GET: validate entire session (all endpoints, attribute defaults, conformance).
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: callback for the express uri registration  
 
 | Param | Type |
 | --- | --- |
@@ -18451,6 +18481,7 @@ Arguments for ZAP
         * [.processCommandLineArguments(argv)](#module_JS API_ Arguments for ZAP.processCommandLineArguments) ⇒
     * _inner_
         * [~environmentVariablesDescription()](#module_JS API_ Arguments for ZAP..environmentVariablesDescription) ⇒
+        * [~expandCommaSeparatedZapPaths(tokens)](#module_JS API_ Arguments for ZAP..expandCommaSeparatedZapPaths) ⇒ <code>Array.&lt;string&gt;</code>
 
 <a name="module_JS API_ Arguments for ZAP.processCommandLineArguments"></a>
 
@@ -18472,6 +18503,19 @@ Get environment variable details.
 
 **Kind**: inner method of [<code>JS API: Arguments for ZAP</code>](#module_JS API_ Arguments for ZAP)  
 **Returns**: environment varibale details  
+<a name="module_JS API_ Arguments for ZAP..expandCommaSeparatedZapPaths"></a>
+
+### JS API: Arguments for ZAP~expandCommaSeparatedZapPaths(tokens) ⇒ <code>Array.&lt;string&gt;</code>
+Split comma-separated path lists (for `validate` only). Shells already pass
+space-separated paths as separate argv tokens; this lets you use a single
+`-i a.zap,b.zap` as well.
+
+**Kind**: inner method of [<code>JS API: Arguments for ZAP</code>](#module_JS API_ Arguments for ZAP)  
+
+| Param | Type |
+| --- | --- |
+| tokens | <code>Array.&lt;string&gt;</code> | 
+
 <a name="module_JS API_ async reporting"></a>
 
 ## JS API: async reporting
@@ -20611,6 +20655,7 @@ things were successful or not.
         * [~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId)](#module_Validation API_ Validation APIs..validateAttribute) ⇒
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
+        * [~isMatterSession(db, sessionId)](#module_Validation API_ Validation APIs..isMatterSession) ⇒
         * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
@@ -20696,7 +20741,12 @@ Get issues in an endpoint.
 <a name="module_Validation API_ Validation APIs..validateNoDuplicateEndpoints"></a>
 
 ### Validation API: Validation APIs~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) ⇒
-Check if there are no duplicate endpoints.
+Returns true when this endpoint identifier is unique within the session.
+
+The schema enforces UNIQUE(ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER), but for the
+user-visible "duplicate endpoint" check we want session-wide uniqueness: two
+endpoints with the same identifier are wrong on a real device regardless of
+which endpoint type they belong to.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -20706,6 +20756,21 @@ Check if there are no duplicate endpoints.
 | db | <code>\*</code> | 
 | endpointIdentifier | <code>\*</code> | 
 | sessionRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..isMatterSession"></a>
+
+### Validation API: Validation APIs~isMatterSession(db, sessionId) ⇒
+True when the session uses Matter ZCL packages (CATEGORY = 'matter').
+Used to relax Zigbee-only rules (e.g. endpoint 0 is reserved in Zigbee but is
+the root node in Matter).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Promise<boolean>  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
 
@@ -21004,7 +21069,7 @@ and generate warnings for non-conformance.
         * [~processElements(elementType)](#module_Validation API_ check element conformance..getOutdatedElementWarning..processElements)
     * [~filterRequiredElements(elements, elementMap, featureMap)](#module_Validation API_ check element conformance..filterRequiredElements) ⇒
     * [~getStateOfOperands(expression, elementMap, featureMap)](#module_Validation API_ check element conformance..getStateOfOperands) ⇒
-    * [~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId)](#module_Validation API_ check element conformance..setConformanceWarnings) ⇒
+    * [~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId, options)](#module_Validation API_ check element conformance..setConformanceWarnings) ⇒
     * [~getEndpointTypeClusterIdFromFeatureData(db, featureData, endpointTypeId, clusterRef)](#module_Validation API_ check element conformance..getEndpointTypeClusterIdFromFeatureData) ⇒
 
 <a name="module_Validation API_ check element conformance..generateWarningMessage"></a>
@@ -21133,7 +21198,7 @@ empty string if no operands conform to any element
 
 <a name="module_Validation API_ check element conformance..setConformanceWarnings"></a>
 
-### Validation API: check element conformance~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId) ⇒
+### Validation API: check element conformance~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId, options) ⇒
 Adds warnings to the session notification table during ZAP file imports
 for features, attributes, commands, and events that do not correctly conform
 within a cluster.
@@ -21141,15 +21206,16 @@ within a cluster.
 **Kind**: inner method of [<code>Validation API: check element conformance</code>](#module_Validation API_ check element conformance)  
 **Returns**: list of warning messages if any, otherwise false  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| endpointId | <code>\*</code> | 
-| endpointTypeId | <code>\*</code> | 
-| endpointClusterId | <code>\*</code> | 
-| deviceTypeRefs | <code>\*</code> | 
-| cluster | <code>\*</code> | 
-| sessionId | <code>\*</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| endpointId | <code>\*</code> |  |
+| endpointTypeId | <code>\*</code> |  |
+| endpointClusterId | <code>\*</code> |  |
+| deviceTypeRefs | <code>\*</code> |  |
+| cluster | <code>\*</code> |  |
+| sessionId | <code>\*</code> |  |
+| options | <code>\*</code> | Optional. Set `{ persistNotifications: false }` to skip writing SESSION_NOTICE (e.g. bulk validate). |
 
 <a name="module_Validation API_ check element conformance..getEndpointTypeClusterIdFromFeatureData"></a>
 
@@ -21422,6 +21488,91 @@ Log warnings to zap.log if both optional attribute and conformance are defined
 | element | <code>\*</code> | 
 | elementType | <code>\*</code> | 
 
+<a name="module_Validation API_ validate all session elements"></a>
+
+## Validation API: validate all session elements
+Runs existing ZCL / data-model validators across an entire session (all endpoints,
+endpoint types, included attributes, and per-cluster conformance).
+
+
+* [Validation API: validate all session elements](#module_Validation API_ validate all session elements)
+    * [~validateAll(db, sessionId, options)](#module_Validation API_ validate all session elements..validateAll) ⇒ <code>Promise.&lt;object&gt;</code>
+        * [~endpointIdentifiersByEndpointTypeId](#module_Validation API_ validate all session elements..validateAll..endpointIdentifiersByEndpointTypeId) : <code>Map.&lt;number, Array.&lt;number&gt;&gt;</code>
+        * [~conformanceByCluster](#module_Validation API_ validate all session elements..validateAll..conformanceByCluster)
+        * [~endpointTypeMandatoryCache](#module_Validation API_ validate all session elements..validateAll..endpointTypeMandatoryCache)
+    * [~collectMandatoryClusterElements(db, endpointTypeId, packageIds)](#module_Validation API_ validate all session elements..collectMandatoryClusterElements) ⇒ <code>Promise.&lt;{attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+    * [~collectDeviceTypeRequirements(db, endpointTypeId)](#module_Validation API_ validate all session elements..collectDeviceTypeRequirements) ⇒ <code>Promise.&lt;{clusters: Array.&lt;object&gt;, attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+
+<a name="module_Validation API_ validate all session elements..validateAll"></a>
+
+### Validation API: validate all session elements~validateAll(db, sessionId, options) ⇒ <code>Promise.&lt;object&gt;</code>
+**Kind**: inner method of [<code>Validation API: validate all session elements</code>](#module_Validation API_ validate all session elements)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Aggregated validation report  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| sessionId | <code>\*</code> |  |  |
+| options | <code>\*</code> |  |  |
+| [options.conformance] | <code>boolean</code> | <code>true</code> | Run conformance checks (feature map / mandatory elements). |
+| [options.persistConformanceNotifications] | <code>boolean</code> | <code>false</code> | If true, conformance issues are also written to SESSION_NOTICE. |
+
+
+* [~validateAll(db, sessionId, options)](#module_Validation API_ validate all session elements..validateAll) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [~endpointIdentifiersByEndpointTypeId](#module_Validation API_ validate all session elements..validateAll..endpointIdentifiersByEndpointTypeId) : <code>Map.&lt;number, Array.&lt;number&gt;&gt;</code>
+    * [~conformanceByCluster](#module_Validation API_ validate all session elements..validateAll..conformanceByCluster)
+    * [~endpointTypeMandatoryCache](#module_Validation API_ validate all session elements..validateAll..endpointTypeMandatoryCache)
+
+<a name="module_Validation API_ validate all session elements..validateAll..endpointIdentifiersByEndpointTypeId"></a>
+
+#### validateAll~endpointIdentifiersByEndpointTypeId : <code>Map.&lt;number, Array.&lt;number&gt;&gt;</code>
+endpoint type id -> sorted endpoint identifier numbers
+
+**Kind**: inner constant of [<code>validateAll</code>](#module_Validation API_ validate all session elements..validateAll)  
+<a name="module_Validation API_ validate all session elements..validateAll..conformanceByCluster"></a>
+
+#### validateAll~conformanceByCluster
+Per-endpoint warning bucket: key = `${endpointDbId}:${clusterRef}`.
+
+**Kind**: inner constant of [<code>validateAll</code>](#module_Validation API_ validate all session elements..validateAll)  
+<a name="module_Validation API_ validate all session elements..validateAll..endpointTypeMandatoryCache"></a>
+
+#### validateAll~endpointTypeMandatoryCache
+endpoint type id -> mandatory attribute / command lists across enabled clusters
+
+**Kind**: inner constant of [<code>validateAll</code>](#module_Validation API_ validate all session elements..validateAll)  
+<a name="module_Validation API_ validate all session elements..collectMandatoryClusterElements"></a>
+
+### Validation API: validate all session elements~collectMandatoryClusterElements(db, endpointTypeId, packageIds) ⇒ <code>Promise.&lt;{attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+Collect mandatory (non-optional, non-global) attributes and mandatory commands
+across every enabled cluster on an endpoint type.
+
+Mirrors getMandatoryClusterAttributes / getMandatoryClusterCommands in
+import-json.js, returning a flat list with cluster context attached.
+
+**Kind**: inner method of [<code>Validation API: validate all session elements</code>](#module_Validation API_ validate all session elements)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+| packageIds | <code>Array.&lt;number&gt;</code> | 
+
+<a name="module_Validation API_ validate all session elements..collectDeviceTypeRequirements"></a>
+
+### Validation API: validate all session elements~collectDeviceTypeRequirements(db, endpointTypeId) ⇒ <code>Promise.&lt;{clusters: Array.&lt;object&gt;, attributes: Array.&lt;object&gt;, commands: Array.&lt;object&gt;}&gt;</code>
+Collect device-type required clusters / attributes / commands for an endpoint type.
+
+Mirrors deviceTypeClustersAttributesAndCommands in import-json.js and joins in
+names + side flags so the validator can report compliance gaps without re-querying.
+
+**Kind**: inner method of [<code>Validation API: validate all session elements</code>](#module_Validation API_ validate all session elements)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+
 <a name="module_Validation API_ Validation APIs"></a>
 
 ## Validation API: Validation APIs
@@ -21438,6 +21589,7 @@ things were successful or not.
         * [~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId)](#module_Validation API_ Validation APIs..validateAttribute) ⇒
         * [~validateEndpoint(db, endpointId)](#module_Validation API_ Validation APIs..validateEndpoint) ⇒
         * [~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef)](#module_Validation API_ Validation APIs..validateNoDuplicateEndpoints) ⇒
+        * [~isMatterSession(db, sessionId)](#module_Validation API_ Validation APIs..isMatterSession) ⇒
         * [~validateXmlAttributeDefault(db, attribute, packageId)](#module_Validation API_ Validation APIs..validateXmlAttributeDefault) ⇒ <code>Promise.&lt;void&gt;</code>
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
@@ -21523,7 +21675,12 @@ Get issues in an endpoint.
 <a name="module_Validation API_ Validation APIs..validateNoDuplicateEndpoints"></a>
 
 ### Validation API: Validation APIs~validateNoDuplicateEndpoints(db, endpointIdentifier, sessionRef) ⇒
-Check if there are no duplicate endpoints.
+Returns true when this endpoint identifier is unique within the session.
+
+The schema enforces UNIQUE(ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER), but for the
+user-visible "duplicate endpoint" check we want session-wide uniqueness: two
+endpoints with the same identifier are wrong on a real device regardless of
+which endpoint type they belong to.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -21533,6 +21690,21 @@ Check if there are no duplicate endpoints.
 | db | <code>\*</code> | 
 | endpointIdentifier | <code>\*</code> | 
 | sessionRef | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..isMatterSession"></a>
+
+### Validation API: Validation APIs~isMatterSession(db, sessionId) ⇒
+True when the session uses Matter ZCL packages (CATEGORY = 'matter').
+Used to relax Zigbee-only rules (e.g. endpoint 0 is reserved in Zigbee but is
+the root node in Matter).
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: Promise<boolean>  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..validateXmlAttributeDefault"></a>
 

@@ -23,6 +23,27 @@ const env = require('../util/env')
 const util = require('../util/util')
 const startup = require('./startup')
 
+// For `validate` without an output file, the JSON report is printed to stdout.
+// Route any incidental console.log noise (version checks, state dir, etc.)
+// to stderr so stdout remains a clean JSON document.
+{
+  let rawArgs = process.argv.slice(2)
+  let isValidateToStdout =
+    rawArgs.includes('validate') &&
+    !rawArgs.some(
+      (a) =>
+        a === '-o' ||
+        a === '--output' ||
+        a === '--validateOutput' ||
+        a.startsWith('-o=') ||
+        a.startsWith('--output=') ||
+        a.startsWith('--validateOutput=')
+    )
+  if (isValidateToStdout) {
+    console.log = (...a) => console.error(...a)
+  }
+}
+
 env.versionsCheck()
 env.setProductionEnv()
 

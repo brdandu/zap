@@ -29,6 +29,7 @@ const types = require('../util/types.js')
 const queryPackage = require('../db/query-package.js')
 const env = require('../util/env')
 const queryNotification = require('../db/query-package-notification.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Main attribute validation function.
@@ -65,6 +66,10 @@ async function validateAttribute(
     return { defaultValue: ['Attribute not found in endpoint configuration'] }
   }
 
+  if (endpointAttribute.storageOption === dbEnum.storageOption.external) {
+    return { defaultValue: [] }
+  }
+
   let attribute = await queryZcl.selectAttributeById(db, attributeRef)
   // Null check for attribute
   if (!attribute) {
@@ -91,7 +96,8 @@ async function validateAttribute(
  */
 async function validateEndpoint(db, endpointId) {
   let endpoint = await queryEndpoint.selectEndpoint(db, endpointId)
-  let currentIssues = validateSpecificEndpoint(endpoint)
+  const isMatter = await isMatterSession(db, endpoint.sessionRef)
+  let currentIssues = validateSpecificEndpoint(endpoint, { isMatter })
   let noDuplicates = await validateNoDuplicateEndpoints(
     db,
     endpoint.endpointId,
@@ -104,7 +110,12 @@ async function validateEndpoint(db, endpointId) {
 }
 
 /**
- * Check if there are no duplicate endpoints.
+ * Returns true when this endpoint identifier is unique within the session.
+ *
+ * The schema enforces UNIQUE(ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER), but for the
+ * user-visible "duplicate endpoint" check we want session-wide uniqueness: two
+ * endpoints with the same identifier are wrong on a real device regardless of
+ * which endpoint type they belong to.
  *
  * @param {*} db
  * @param {*} endpointIdentifier
@@ -116,13 +127,34 @@ async function validateNoDuplicateEndpoints(
   endpointIdentifier,
   sessionRef
 ) {
-  let count =
+  const count =
     await queryConfig.selectCountOfEndpointsWithGivenEndpointIdentifier(
       db,
       endpointIdentifier,
       sessionRef
     )
-  return count.length <= 1
+  // helper returns the integer count (0/1/...). Anything other than 0 or 1 means duplicate.
+  const n = Number(count)
+  return Number.isFinite(n) ? n <= 1 : true
+}
+
+/**
+ * True when the session uses Matter ZCL packages (CATEGORY = 'matter').
+ * Used to relax Zigbee-only rules (e.g. endpoint 0 is reserved in Zigbee but is
+ * the root node in Matter).
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise<boolean>
+ */
+async function isMatterSession(db, sessionId) {
+  if (sessionId == null) return false
+  try {
+    const pkgs = await queryPackage.getSessionZclPackages(db, sessionId)
+    return pkgs.some((p) => p.category === dbEnum.helperCategory.matter)
+  } catch (e) {
+    return false
+  }
 }
 
 /**
@@ -289,7 +321,8 @@ async function validateSpecificAttribute(
  * @param {*} endpoint
  * @returns object
  */
-function validateSpecificEndpoint(endpoint) {
+function validateSpecificEndpoint(endpoint, options = {}) {
+  const isMatter = options.isMatter === true
   let zclEndpointIdIssues = []
   let zclNetworkIdIssues = []
   if (!isValidNumberString(endpoint.endpointId))
@@ -301,7 +334,8 @@ function validateSpecificEndpoint(endpoint) {
     zclEndpointIdIssues.push('EndpointId is out of valid range')
   if (!isValidNumberString(endpoint.networkId))
     zclNetworkIdIssues.push('NetworkId is invalid number string')
-  if (extractIntegerValue(endpoint.endpointId) == 0)
+  // Matter reserves endpoint 0 as the Root Node. Zigbee reserves it for ZDO.
+  if (!isMatter && extractIntegerValue(endpoint.endpointId) == 0)
     zclEndpointIdIssues.push('0 is not a valid endpointId')
   return {
     endpointId: zclEndpointIdIssues,
@@ -600,6 +634,7 @@ exports.validateEndpoint = validateEndpoint
 exports.validateNoDuplicateEndpoints = validateNoDuplicateEndpoints
 exports.validateSpecificAttribute = validateSpecificAttribute
 exports.validateSpecificEndpoint = validateSpecificEndpoint
+exports.isMatterSession = isMatterSession
 exports.isValidNumberString = isValidNumberString
 exports.isValidFloat = isValidFloat
 exports.extractFloatValue = extractFloatValue

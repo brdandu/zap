@@ -33,6 +33,11 @@ const env = require('../src-electron/util/env')
 const types = require('../src-electron/util/types')
 const { timeout } = require('./test-util')
 const queryPackageNotification = require('../src-electron/db/query-package-notification')
+const validateAll = require('../src-electron/validation/validate-all')
+const importJs = require('../src-electron/importexport/import.js')
+const util = require('../src-electron/util/util.js')
+const generatorEngine = require('../src-electron/generator/generation-engine.js')
+const path = require('path')
 
 let db
 let sid
@@ -609,6 +614,23 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     )
     endpointTypeIdOnOff = rowId
     let endpointType = await queryEndpointType.selectEndpointType(db, rowId)
+    // The schema's UNIQUE(ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER) plus
+    // INSERT OR REPLACE in queryEndpoint.insertEndpoint means the only way
+    // to actually have two endpoints sharing an identifier is to put them
+    // on different endpoint types, so create a second endpoint type here.
+    let secondEndpointTypeRowId = await queryConfig.insertEndpointType(
+      db,
+      sessionPartitionInfo[0],
+      'testEndpointTypeDup',
+      deviceTypeId,
+      haOnOffDeviceType.code,
+      0,
+      true
+    )
+    let secondEndpointType = await queryEndpointType.selectEndpointType(
+      db,
+      secondEndpointTypeRowId
+    )
     await queryEndpoint.insertEndpoint(
       db,
       sid,
@@ -621,7 +643,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       db,
       sid,
       1,
-      endpointType.endpointTypeId,
+      secondEndpointType.endpointTypeId,
       1,
       23
     )
@@ -631,10 +653,143 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     () =>
       validation
         .validateEndpoint(db, eptId)
-        .then((data) => validation.validateNoDuplicateEndpoints(db, eptId, sid))
+        .then((data) => validation.validateNoDuplicateEndpoints(db, 1, sid))
         .then((hasNoDuplicates) => {
           expect(hasNoDuplicates).toBeFalsy()
         }),
+    timeout.medium()
+  )
+})
+
+describe('validateAll', () => {
+  let vdb
+  beforeAll(async () => {
+    let file = env.sqliteTestFile('validate-all')
+    vdb = await dbApi.initDatabaseAndLoadSchema(
+      file,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    await zclLoader.loadZcl(vdb, env.builtinMatterZclMetafile())
+    let ctx = await generatorEngine.loadTemplates(
+      vdb,
+      env.builtinTemplateMetafile(),
+      {
+        failOnLoadingError: true
+      }
+    )
+    if (ctx.error) {
+      throw ctx.error
+    }
+  }, timeout.long())
+  afterAll(() => dbApi.closeDatabase(vdb), timeout.short())
+
+  test(
+    'full session validation report for matter-test.zap',
+    async () => {
+      const zapPath = path.join(__dirname, 'resource/matter-test.zap')
+      const importResult = await importJs.importDataFromFile(vdb, zapPath, {
+        defaultZclMetafile: env.builtinMatterZclMetafile(),
+        packageMatch: 'fuzzy'
+      })
+      await util.ensurePackagesAndPopulateSessionOptions(
+        vdb,
+        importResult.sessionId,
+        {
+          zcl: env.builtinMatterZclMetafile(),
+          template: env.builtinTemplateMetafile()
+        }
+      )
+      const report = await validateAll.validateAll(vdb, importResult.sessionId)
+      expect(report.summary).toBeDefined()
+      expect(typeof report.summary.errors).toBe('number')
+      expect(typeof report.summary.warnings).toBe('number')
+      expect(report.summary.endpoints).toBeGreaterThan(0)
+      expect(report.summary.attributes).toBeGreaterThan(0)
+      expect(Array.isArray(report.endpoints)).toBe(true)
+      expect(Array.isArray(report.attributes)).toBe(true)
+      expect(Array.isArray(report.conformance)).toBe(true)
+    },
+    timeout.long()
+  )
+})
+
+describe('validateSpecificEndpoint Matter root-node handling', () => {
+  test(
+    'flags endpoint 0 in a non-Matter (Zigbee) session',
+    () => {
+      const issues = validation.validateSpecificEndpoint(
+        { endpointId: '0', networkId: '0' },
+        { isMatter: false }
+      )
+      expect(issues.endpointId).toContain('0 is not a valid endpointId')
+    },
+    timeout.short()
+  )
+
+  test(
+    'allows endpoint 0 in a Matter session (Root Node)',
+    () => {
+      const issues = validation.validateSpecificEndpoint(
+        { endpointId: '0', networkId: '0' },
+        { isMatter: true }
+      )
+      expect(issues.endpointId).not.toContain('0 is not a valid endpointId')
+    },
+    timeout.short()
+  )
+
+  test(
+    'still flags out-of-range endpoint ids in Matter sessions',
+    () => {
+      const issues = validation.validateSpecificEndpoint(
+        { endpointId: '0xFFFFFF', networkId: '0' },
+        { isMatter: true }
+      )
+      expect(issues.endpointId).toContain('EndpointId is out of valid range')
+    },
+    timeout.short()
+  )
+})
+
+describe('validate-all null pre-check', () => {
+  let nvdb
+  let nsid
+  beforeAll(async () => {
+    let file = env.sqliteTestFile('validate-all-null')
+    nvdb = await dbApi.initDatabaseAndLoadSchema(
+      file,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    await zclLoader.loadZcl(nvdb, env.builtinSilabsZclMetafile())
+    nsid = await testQuery.createSession(
+      nvdb,
+      'USER',
+      'NULL_EP_SESSION',
+      env.builtinSilabsZclMetafile(),
+      env.builtinTemplateMetafile()
+    )
+    await dbApi.dbInsert(
+      nvdb,
+      'INSERT INTO ENDPOINT (SESSION_REF, ENDPOINT_TYPE_REF, ENDPOINT_IDENTIFIER, NETWORK_IDENTIFIER) VALUES (?, NULL, NULL, NULL)',
+      [nsid]
+    )
+  }, timeout.long())
+  afterAll(() => dbApi.closeDatabase(nvdb), timeout.short())
+
+  test(
+    'validateAll flags endpoints with a missing identifier',
+    async () => {
+      const report = await validateAll.validateAll(nvdb, nsid, {
+        conformance: false
+      })
+      expect(report.endpoints.length).toBeGreaterThan(0)
+      const allEndpointIssues = report.endpoints.flatMap(
+        (e) => e.issues.endpointId
+      )
+      expect(allEndpointIssues).toContain('EndpointId is missing')
+    },
     timeout.medium()
   )
 })
