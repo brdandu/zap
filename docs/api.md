@@ -8533,6 +8533,7 @@ Get endpoint type events from the given endpoint type ID.
     * [~postProcessGeneratedFiles(outputDirectory, genResult)](#module_JS API_ generator logic..postProcessGeneratedFiles) ⇒
     * [~contentIndexer(content)](#module_JS API_ generator logic..contentIndexer)
     * [~generateSingleFileForPreview(db, sessionId, fileName)](#module_JS API_ generator logic..generateSingleFileForPreview) ⇒
+    * [~reportRenderProgress()](#module_JS API_ generator logic..reportRenderProgress)
     * [~produceCompiledTemplate(singleTemplatePkg)](#module_JS API_ generator logic..produceCompiledTemplate) ⇒
     * [~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options)](#module_JS API_ generator logic..produceIterativeContent) ⇒
     * [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module_JS API_ generator logic..produceContent) ⇒
@@ -8889,6 +8890,13 @@ Generates a single file and feeds it back for preview.
 | sessionId | <code>\*</code> | 
 | fileName | <code>\*</code> | 
 
+<a name="module_JS API_ generator logic..reportRenderProgress"></a>
+
+### JS API: generator logic~reportRenderProgress()
+Reports that template rendering made progress, keeping the idle watchdog of
+every in-flight render alive.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 <a name="module_JS API_ generator logic..produceCompiledTemplate"></a>
 
 ### JS API: generator logic~produceCompiledTemplate(singleTemplatePkg) ⇒
@@ -14711,6 +14719,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~postProcessGeneratedFiles(outputDirectory, genResult)](#module_JS API_ generator logic..postProcessGeneratedFiles) ⇒
     * [~contentIndexer(content)](#module_JS API_ generator logic..contentIndexer)
     * [~generateSingleFileForPreview(db, sessionId, fileName)](#module_JS API_ generator logic..generateSingleFileForPreview) ⇒
+    * [~reportRenderProgress()](#module_JS API_ generator logic..reportRenderProgress)
     * [~produceCompiledTemplate(singleTemplatePkg)](#module_JS API_ generator logic..produceCompiledTemplate) ⇒
     * [~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options)](#module_JS API_ generator logic..produceIterativeContent) ⇒
     * [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module_JS API_ generator logic..produceContent) ⇒
@@ -15067,6 +15076,13 @@ Generates a single file and feeds it back for preview.
 | sessionId | <code>\*</code> | 
 | fileName | <code>\*</code> | 
 
+<a name="module_JS API_ generator logic..reportRenderProgress"></a>
+
+### JS API: generator logic~reportRenderProgress()
+Reports that template rendering made progress, keeping the idle watchdog of
+every in-flight render alive.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 <a name="module_JS API_ generator logic..produceCompiledTemplate"></a>
 
 ### JS API: generator logic~produceCompiledTemplate(singleTemplatePkg) ⇒
@@ -15487,6 +15503,7 @@ await initAsync(); const hb = templateEngine.hbInstance();
     * [~postProcessGeneratedFiles(outputDirectory, genResult)](#module_JS API_ generator logic..postProcessGeneratedFiles) ⇒
     * [~contentIndexer(content)](#module_JS API_ generator logic..contentIndexer)
     * [~generateSingleFileForPreview(db, sessionId, fileName)](#module_JS API_ generator logic..generateSingleFileForPreview) ⇒
+    * [~reportRenderProgress()](#module_JS API_ generator logic..reportRenderProgress)
     * [~produceCompiledTemplate(singleTemplatePkg)](#module_JS API_ generator logic..produceCompiledTemplate) ⇒
     * [~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options)](#module_JS API_ generator logic..produceIterativeContent) ⇒
     * [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module_JS API_ generator logic..produceContent) ⇒
@@ -15843,6 +15860,13 @@ Generates a single file and feeds it back for preview.
 | sessionId | <code>\*</code> | 
 | fileName | <code>\*</code> | 
 
+<a name="module_JS API_ generator logic..reportRenderProgress"></a>
+
+### JS API: generator logic~reportRenderProgress()
+Reports that template rendering made progress, keeping the idle watchdog of
+every in-flight render alive.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 <a name="module_JS API_ generator logic..produceCompiledTemplate"></a>
 
 ### JS API: generator logic~produceCompiledTemplate(singleTemplatePkg) ⇒
